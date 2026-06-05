@@ -2,115 +2,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B2K Tournament - Admin Control Panel</title>
+    <title>B2K Admin Panel - Final Complete Version</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #12131a; color: #fff; padding: 15px; }
-        #passwordScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #12131a; z-index: 99999; display: flex; justify-content: center; align-items: center; }
-        .pass-container { background: #1c1d26; padding: 30px; border-radius: 12px; border: 1px solid #ff4e50; text-align: center; width: 90%; max-width: 300px; }
-        .pass-container input { width: 100%; padding: 10px; margin: 15px 0; border-radius: 5px; border: 1px solid #2d2f3d; background: #12131a; color: #fff; text-align: center; }
-        .pass-container button { width: 100%; padding: 10px; background: #ff4e50; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; }
-        
-        .grid-container { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        .panel-box { background: #1c1d26; padding: 20px; border-radius: 12px; border: 1px solid #2d2f3d; margin-top: 20px; }
-        .panel-box h2 { font-size: 16px; color: #ffbc00; margin-bottom: 15px; border-left: 4px solid #ff4e50; padding-left: 8px; text-transform: uppercase; }
-        input, button { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #2d2f3d; background: #12131a; color: #fff; }
-        .btn { border: none; cursor: pointer; font-weight: bold; background: #ff4e50; color: #fff; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #12131a; color: #fff; padding: 20px; }
+        .panel-box { background: #1c1d26; padding: 20px; border-radius: 12px; border: 1px solid #2d2f3d; margin-bottom: 20px; }
+        h2 { color: #ffbc00; font-size: 18px; margin-bottom: 15px; border-left: 4px solid #ff4e50; padding-left: 10px; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 10px; background: #12131a; color: #fff; border: 1px solid #2d2f3d; border-radius: 5px; }
+        .btn { width: 100%; padding: 10px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; background: #ff4e50; color: #fff; }
     </style>
 </head>
 <body>
+    <h1>B2K Admin Control Panel</h1>
 
-    <div id="passwordScreen">
-        <div class="pass-container">
-            <h3 style="color:#ff4e50;">Admin Access</h3>
-            <input type="password" id="adminPass" placeholder="Password">
-            <button onclick="checkAdmin()">Login</button>
-        </div>
+    <div class="panel-box">
+        <h2>নতুন ম্যাচ পাবলিশ করুন</h2>
+        <select id="matchType">
+            <option value="Bermuda">বারমুডা (Bermuda)</option>
+            <option value="CS">সিএস (CS Rank)</option>
+            <option value="LoneWolf">লোন উলফ (Lone Wolf)</option>
+        </select>
+        <input type="number" id="entryFee" placeholder="এন্ট্রি ফি">
+        <input type="text" id="matchTime" placeholder="ম্যাচ শুরু হওয়ার সময়">
+        <input type="text" id="roomId" placeholder="রুম আইডি">
+        <input type="text" id="roomPass" placeholder="রুম পাসওয়ার্ড">
+        <button class="btn" onclick="publishMatch()">ম্যাচ পাবলিশ করুন</button>
     </div>
 
-    <div id="adminContent" style="display: none;">
-        <h1>B2K Admin Panel</h1>
-        
-        <div class="grid-container">
-            <div class="panel-box">
-                <h2>Room ID & Password</h2>
-                <input type="text" id="roomId" placeholder="Room ID">
-                <input type="text" id="roomPass" placeholder="Room Password">
-                <button class="btn" onclick="updateRoomData()">Save Room Data</button>
-            </div>
+    <div class="panel-box">
+        <h2>ইউজার ব্যালেন্স যোগ করুন</h2>
+        <input type="text" id="targetUid" placeholder="User UID">
+        <input type="number" id="addAmt" placeholder="টাকার পরিমাণ">
+        <button class="btn" style="background:#2ecc71;" onclick="addBalance()">ব্যালেন্স যোগ করুন</button>
+    </div>
 
-            <div class="panel-box">
-                <h2>Leaderboard Update</h2>
-                <input type="text" id="winnerUid" placeholder="Winner UID">
-                <input type="number" id="winPoints" placeholder="Points to Add">
-                <button class="btn" onclick="updateLeaderboard()">Add Points</button>
-            </div>
+    <div class="panel-box">
+        <h2>লিডারবোর্ড আপডেট</h2>
+        <input type="text" id="winnerUid" placeholder="Winner UID">
+        <input type="number" id="winPoints" placeholder="পয়েন্ট যোগ করুন">
+        <button class="btn" onclick="updateLeaderboard()">পয়েন্ট আপডেট করুন</button>
+    </div>
 
-            <div class="panel-box">
-                <h2>Withdraw Requests</h2>
-                <div id="withdrawList"></div>
-            </div>
+    <div class="panel-box">
+        <h2>উইথড্র রিকোয়েস্ট (Withdraw Requests)</h2>
+        <div id="withdrawList"></div>
+    </div>
 
-            <div class="panel-box">
-                <h2>Calculator</h2>
-                <input type="number" id="players" placeholder="Players">
-                <input type="number" id="fee" placeholder="Entry Fee">
-                <input type="number" id="prize" placeholder="Prize">
-                <button class="btn" style="background: green;" onclick="calculate()">Calculate</button>
-                <div id="output" style="margin-top:10px; font-weight:bold;"></div>
-            </div>
-        </div>
+    <div class="panel-box">
+        <h2>লাভ ক্যালকুলেটর</h2>
+        <input type="number" id="players" placeholder="মোট প্লেয়ার সংখ্যা">
+        <input type="number" id="fee" placeholder="এন্ট্রি ফি">
+        <input type="number" id="prize" placeholder="প্রাইজ মানি">
+        <button class="btn" style="background: green;" onclick="calculate()">লাভ হিসাব করুন</button>
+        <div id="output" style="margin-top:10px; font-weight:bold;"></div>
     </div>
 
     <script>
-        function checkAdmin() {
-            if (document.getElementById('adminPass').value === "12345") {
-                document.getElementById('passwordScreen').style.display = 'none';
-                document.getElementById('adminContent').style.display = 'block';
-            } else { alert("Wrong Password!"); }
-        }
-
         const firebaseConfig = { /* আপনার কনফিগ এখানে বসান */ };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        function updateRoomData() {
-            database.ref('room_details').set({ 
-                id: document.getElementById('roomId').value, 
-                pass: document.getElementById('roomPass').value 
-            }).then(() => alert("Updated!"));
+        // ম্যাচ পাবলিশ
+        function publishMatch() {
+            database.ref('matches').push({
+                type: document.getElementById('matchType').value,
+                fee: document.getElementById('entryFee').value,
+                time: document.getElementById('matchTime').value,
+                roomId: document.getElementById('roomId').value,
+                roomPass: document.getElementById('roomPass').value
+            }).then(() => alert("ম্যাচ পাবলিশ হয়েছে!"));
         }
 
+        // ব্যালেন্স অ্যাড
+        function addBalance() {
+            const uid = document.getElementById('targetUid').value;
+            const amt = parseInt(document.getElementById('addAmt').value);
+            database.ref('users/' + uid + '/balance').transaction(current => (current || 0) + amt)
+            .then(() => {
+                database.ref('transactions/' + uid).push({ type: 'Deposit', amount: amt, status: 'Success' });
+                alert("ব্যালেন্স আপডেট হয়েছে!");
+            });
+        }
+
+        // লিডারবোর্ড
         function updateLeaderboard() {
             const uid = document.getElementById('winnerUid').value;
             const pts = parseInt(document.getElementById('winPoints').value);
             database.ref('leaderboard/' + uid + '/points').transaction(current => (current || 0) + pts)
-            .then(() => alert("Points Updated!"));
+            .then(() => alert("পয়েন্ট আপডেট হয়েছে!"));
         }
 
+        // উইথড্র লিস্ট
         database.ref('requests/withdrawals').on('value', snapshot => {
             const container = document.getElementById('withdrawList');
             container.innerHTML = "";
             snapshot.forEach(child => {
                 const req = child.val();
-                container.innerHTML += `<div style="background:#12131a; padding:10px; margin-bottom:5px;">
+                container.innerHTML += `<div style="background:#12131a; padding:10px; margin-bottom:5px; border-bottom:1px solid #2f3042;">
                     User: ${req.email} | Amt: ${req.amount} | Num: ${req.number}
-                    <button onclick="database.ref('requests/withdrawals/${child.key}').remove()">Done</button>
+                    <button style="float:right; cursor:pointer;" onclick="database.ref('requests/withdrawals/${child.key}').remove()">Done</button>
                 </div>`;
             });
         });
 
+        // ক্যালকুলেটর
         function calculate() {
-            let p = document.getElementById('players').value;
-            let f = document.getElementById('fee').value;
-            let pr = document.getElementById('prize').value;
-            let res = (p * f) - pr;
+            let res = (document.getElementById('players').value * document.getElementById('fee').value) - document.getElementById('prize').value;
             document.getElementById('output').innerHTML = "Profit: " + res + " TK";
         }
     </script>
