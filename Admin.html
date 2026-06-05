@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>B2K Admin Panel - Auto Approve System</title>
+    <title>B2K Admin Panel - Full Control</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -11,7 +11,7 @@
         #passwordScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #12131a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .panel-box { background: #1c1d26; padding: 20px; border-radius: 12px; border: 1px solid #2d2f3d; margin-bottom: 20px; }
         h2 { color: #ffbc00; font-size: 18px; margin-bottom: 15px; border-left: 4px solid #ff4e50; padding-left: 10px; }
-        input { width: 100%; padding: 10px; margin-bottom: 10px; background: #12131a; color: #fff; border: 1px solid #2d2f3d; border-radius: 5px; }
+        input, textarea { width: 100%; padding: 10px; margin-bottom: 10px; background: #12131a; color: #fff; border: 1px solid #2d2f3d; border-radius: 5px; }
         .btn { width: 100%; padding: 10px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; background: #ff4e50; color: #fff; margin-bottom: 5px; }
     </style>
 </head>
@@ -27,6 +27,19 @@
 
     <div id="adminContent" style="display:none;">
         <h1>B2K Admin Control Panel</h1>
+
+        <div class="panel-box">
+            <h2>খেলার নিয়মাবলী আপডেট</h2>
+            <textarea id="rulesText" rows="5" placeholder="এখানে খেলার নতুন নিয়মাবলী লিখুন..."></textarea>
+            <button class="btn" style="background: #9b59b6;" onclick="updateRules()">নিয়মাবলী পাবলিশ করুন</button>
+        </div>
+
+        <div class="panel-box">
+            <h2>নোটিশ ও লিংক আপডেট (থাম্বনেল সিস্টেম)</h2>
+            <input type="text" id="noticeText" placeholder="নোটিশের শিরোনাম লিখুন">
+            <input type="text" id="noticeLink" placeholder="লিংক বসান (যেমন: ভিডিও বা ইমেজ লিংক)">
+            <button class="btn" style="background: #3498db;" onclick="updateNotice()">পাবলিশ করুন</button>
+        </div>
 
         <div class="panel-box">
             <h2>ডিপোজিট রিকোয়েস্ট (এক ক্লিকে এপ্রুভ)</h2>
@@ -67,7 +80,22 @@
             } else { alert("ভুল পাসওয়ার্ড!"); }
         }
 
-        // ডিপোজিট রিকোয়েস্ট লিস্ট ও এপ্রুভ লজিক
+        // নিয়মাবলী আপডেট ফাংশন (নতুন যোগ করা)
+        function updateRules() {
+            const rules = document.getElementById('rulesText').value;
+            database.ref('app_settings/rules').set(rules)
+            .then(() => alert("নিয়মাবলী সফলভাবে আপডেট হয়েছে!"));
+        }
+
+        // নোটিশ আপডেট ফাংশন
+        function updateNotice() {
+            database.ref('app_settings/notice').set({
+                text: document.getElementById('noticeText').value,
+                link: document.getElementById('noticeLink').value
+            }).then(() => alert("নোটিশ এবং লিংক আপডেট হয়েছে!"));
+        }
+
+        // ডিপোজিট রিকোয়েস্ট লজিক
         database.ref('requests/deposits').on('value', snapshot => {
             const container = document.getElementById('depositList');
             container.innerHTML = "";
@@ -82,16 +110,14 @@
             });
         });
 
-        // এপ্রুভ করার ফাংশন
         function approveDeposit(reqKey, uid, amount) {
             database.ref('users/' + uid + '/balance').transaction(c => (c || 0) + amount)
             .then(() => {
-                database.ref('requests/deposits/' + reqKey).remove(); // রিকোয়েস্ট ডিলিট
+                database.ref('requests/deposits/' + reqKey).remove();
                 alert("ব্যালেন্স এপ্রুভ হয়েছে!");
             });
         }
 
-        // ম্যাচ এবং অন্যান্য ফাংশন আগের মতোই...
         function createOrUpdateMatch() {
             const key = document.getElementById('matchId').value;
             database.ref('matches/' + key).set({
@@ -120,5 +146,5 @@
         });
     </script>
 </body>
-    </html>
-    
+</html>
+
