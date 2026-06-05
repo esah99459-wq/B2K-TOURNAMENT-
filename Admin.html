@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>B2K Admin Panel - Final Complete Version</title>
+    <title>B2K Admin Panel - Auto Approve System</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -11,8 +11,8 @@
         #passwordScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #12131a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .panel-box { background: #1c1d26; padding: 20px; border-radius: 12px; border: 1px solid #2d2f3d; margin-bottom: 20px; }
         h2 { color: #ffbc00; font-size: 18px; margin-bottom: 15px; border-left: 4px solid #ff4e50; padding-left: 10px; }
-        input, select { width: 100%; padding: 10px; margin-bottom: 10px; background: #12131a; color: #fff; border: 1px solid #2d2f3d; border-radius: 5px; }
-        .btn { width: 100%; padding: 10px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; background: #ff4e50; color: #fff; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; background: #12131a; color: #fff; border: 1px solid #2d2f3d; border-radius: 5px; }
+        .btn { width: 100%; padding: 10px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; background: #ff4e50; color: #fff; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -29,18 +29,17 @@
         <h1>B2K Admin Control Panel</h1>
 
         <div class="panel-box">
-            <h2>ম্যাচ ম্যানেজমেন্ট (পাবলিশ/আপডেট)</h2>
-            <input type="text" id="matchId" placeholder="Match Unique Key (যেমন: match01)">
-            <input type="text" id="roomId" placeholder="Room ID">
-            <input type="text" id="roomPass" placeholder="Room Password">
-            <button class="btn" onclick="saveMatch()">সেভ বা আপডেট করুন</button>
+            <h2>ডিপোজিট রিকোয়েস্ট (এক ক্লিকে এপ্রুভ)</h2>
+            <div id="depositList"></div>
         </div>
 
         <div class="panel-box">
-            <h2>ইউজার ব্যালেন্স যোগ</h2>
-            <input type="text" id="targetUid" placeholder="User UID">
-            <input type="number" id="addAmt" placeholder="টাকার পরিমাণ">
-            <button class="btn" style="background:#2ecc71;" onclick="addBalance()">ব্যালেন্স যোগ করুন</button>
+            <h2>ম্যাচ ম্যানেজমেন্ট</h2>
+            <input type="text" id="matchId" placeholder="Match Unique Key (যেমন: match01)">
+            <input type="text" id="gameMode" placeholder="মুড (Solo/Duo/Squad)">
+            <input type="text" id="roomId" placeholder="Room ID">
+            <input type="text" id="roomPass" placeholder="Room Password">
+            <button class="btn" onclick="createOrUpdateMatch()">সেভ বা আপডেট করুন</button>
         </div>
 
         <div class="panel-box">
@@ -54,15 +53,6 @@
             <h2>উইথড্র রিকোয়েস্ট</h2>
             <div id="withdrawList"></div>
         </div>
-
-        <div class="panel-box">
-            <h2>লাভ ক্যালকুলেটর</h2>
-            <input type="number" id="players" placeholder="প্লেয়ার সংখ্যা">
-            <input type="number" id="fee" placeholder="এন্ট্রি ফি">
-            <input type="number" id="prize" placeholder="প্রাইজ মানি">
-            <button class="btn" style="background: green;" onclick="calculate()">হিসাব করুন</button>
-            <div id="output" style="margin-top:10px; font-weight:bold;"></div>
-        </div>
     </div>
 
     <script>
@@ -70,7 +60,6 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // পাসওয়ার্ড চেক
         function checkAdmin() {
             if (document.getElementById('adminPass').value === "17510") {
                 document.getElementById('passwordScreen').style.display = 'none';
@@ -78,21 +67,38 @@
             } else { alert("ভুল পাসওয়ার্ড!"); }
         }
 
-        // ম্যাচ সেভ বা আপডেট
-        function saveMatch() {
-            const key = document.getElementById('matchId').value;
-            database.ref('matches/' + key).update({
-                roomId: document.getElementById('roomId').value,
-                roomPassword: document.getElementById('roomPass').value
-            }).then(() => alert("ম্যাচ ডিটেইলস আপডেট হয়েছে!"));
+        // ডিপোজিট রিকোয়েস্ট লিস্ট ও এপ্রুভ লজিক
+        database.ref('requests/deposits').on('value', snapshot => {
+            const container = document.getElementById('depositList');
+            container.innerHTML = "";
+            snapshot.forEach(child => {
+                const req = child.val();
+                container.innerHTML += `<div style="background:#12131a; padding:10px; border-bottom:1px solid #2d2f3d; margin-bottom:5px;">
+                    User: ${req.email} <br> 
+                    নম্বর: ${req.number} | ট্রানজেকশন আইডি: ${req.tid} | টাকা: ${req.amount} <br>
+                    <button class="btn" style="background:#2ecc71; margin-top:5px;" 
+                    onclick="approveDeposit('${child.key}', '${req.uid}', ${req.amount})">Approve</button>
+                </div>`;
+            });
+        });
+
+        // এপ্রুভ করার ফাংশন
+        function approveDeposit(reqKey, uid, amount) {
+            database.ref('users/' + uid + '/balance').transaction(c => (c || 0) + amount)
+            .then(() => {
+                database.ref('requests/deposits/' + reqKey).remove(); // রিকোয়েস্ট ডিলিট
+                alert("ব্যালেন্স এপ্রুভ হয়েছে!");
+            });
         }
 
-        // অন্যান্য ফাংশন (ব্যালেন্স, লিডারবোর্ড ইত্যাদি)
-        function addBalance() {
-            const uid = document.getElementById('targetUid').value;
-            const amt = parseInt(document.getElementById('addAmt').value);
-            database.ref('users/' + uid + '/balance').transaction(c => (c || 0) + amt)
-            .then(() => alert("ব্যালেন্স আপডেট হয়েছে!"));
+        // ম্যাচ এবং অন্যান্য ফাংশন আগের মতোই...
+        function createOrUpdateMatch() {
+            const key = document.getElementById('matchId').value;
+            database.ref('matches/' + key).set({
+                gameMode: document.getElementById('gameMode').value,
+                roomId: document.getElementById('roomId').value,
+                roomPassword: document.getElementById('roomPass').value
+            }).then(() => alert("ম্যাচ আপডেট হয়েছে!"));
         }
 
         function updateLeaderboard() {
@@ -112,11 +118,6 @@
                 </div>`;
             });
         });
-
-        function calculate() {
-            let res = (document.getElementById('players').value * document.getElementById('fee').value) - document.getElementById('prize').value;
-            document.getElementById('output').innerHTML = "Profit: " + res + " TK";
-        }
     </script>
 </body>
     </html>
