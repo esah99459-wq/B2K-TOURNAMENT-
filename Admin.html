@@ -35,6 +35,15 @@
         </div>
 
         <div class="panel-box">
+            <h2>লাভ ক্যালকুলেটর</h2>
+            <input type="number" id="players" placeholder="প্লেয়ার সংখ্যা">
+            <input type="number" id="fee" placeholder="এন্ট্রি ফি">
+            <input type="number" id="prize" placeholder="প্রাইজ মানি">
+            <button class="btn" style="background: green;" onclick="calculate()">হিসাব করুন</button>
+            <div id="output" style="margin-top:10px; font-weight:bold;"></div>
+        </div>
+
+        <div class="panel-box">
             <h2>নোটিশ ও লিংক আপডেট (থাম্বনেল সিস্টেম)</h2>
             <input type="text" id="noticeText" placeholder="নোটিশের শিরোনাম লিখুন">
             <input type="text" id="noticeLink" placeholder="লিংক বসান (যেমন: ভিডিও বা ইমেজ লিংক)">
@@ -80,7 +89,13 @@
             } else { alert("ভুল পাসওয়ার্ড!"); }
         }
 
-        // নিয়মাবলী আপডেট ফাংশন (নতুন যোগ করা)
+        // ক্যালকুলেটর ফাংশন
+        function calculate() {
+            let res = (document.getElementById('players').value * document.getElementById('fee').value) - document.getElementById('prize').value;
+            document.getElementById('output').innerHTML = "Profit: " + res + " TK";
+        }
+
+        // নিয়মাবলী আপডেট ফাংশন
         function updateRules() {
             const rules = document.getElementById('rulesText').value;
             database.ref('app_settings/rules').set(rules)
@@ -147,4 +162,3 @@
     </script>
 </body>
 </html>
-
