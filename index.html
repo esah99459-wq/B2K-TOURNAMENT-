@@ -2,133 +2,98 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>B2K Admin Panel - Final Complete Version</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2K Tournament - Premium App</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #12131a; color: #fff; padding: 20px; }
-        #passwordScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #12131a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .panel-box { background: #1c1d26; padding: 20px; border-radius: 12px; border: 1px solid #2d2f3d; margin-bottom: 20px; }
-        h2 { color: #ffbc00; font-size: 18px; margin-bottom: 15px; border-left: 4px solid #ff4e50; padding-left: 10px; }
-        input, select { width: 100%; padding: 10px; margin-bottom: 10px; background: #12131a; color: #fff; border: 1px solid #2d2f3d; border-radius: 5px; }
-        .btn { width: 100%; padding: 10px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; background: #ff4e50; color: #fff; margin-bottom: 5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #171821; color: #fff; padding-bottom: 80px; }
+        .content-section { display: none; padding: 15px; }
+        .content-section.active { display: block; }
+        .section-title { font-size: 16px; color: #fff; margin-bottom: 15px; font-weight: bold; border-left: 4px solid #ff4e50; padding-left: 8px; text-transform: uppercase; }
+        .btn-join { background: #ff4e50; color: #fff; border: none; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px;}
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #21222d; border-top: 1px solid #2f3042; display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #7e809a; cursor: pointer; border: none; background: none; font-size: 12px; }
+        .nav-item.active { color: #ff4e50; }
     </style>
 </head>
 <body>
 
-    <div id="passwordScreen">
-        <div class="panel-box" style="text-align:center;">
-            <h3>Admin Access</h3>
-            <input type="password" id="adminPass" placeholder="Enter Password">
-            <button class="btn" onclick="checkAdmin()">Login</button>
-        </div>
-    </div>
-
-    <div id="adminContent" style="display:none;">
-        <h1>B2K Admin Control Panel</h1>
-
-        <div class="panel-box">
-            <h2>ডিপোজিট রিকোয়েস্ট</h2>
-            <div id="depositList"></div>
+    <div id="profileSection" class="content-section active">
+        
+        <div id="noticeContainer" style="background:#21222d; padding:15px; border-radius:12px; border: 1px solid #ff4e50; margin-bottom: 20px; display: none;">
+            <h3 id="noticeTitle" style="color:#ffbc00; margin-bottom: 10px;"></h3>
+            <a id="noticeLinkBtn" href="#" target="_blank" class="btn-join" style="display:block; text-align:center; text-decoration:none; padding:10px; background:#ff4e50; color:#fff; border-radius:5px;">আরও দেখুন / ক্লিক করুন</a>
         </div>
 
-        <div class="panel-box">
-            <h2>ম্যাচ ম্যানেজমেন্ট (পাবলিশ/আপডেট)</h2>
-            <input type="text" id="matchId" placeholder="Match Unique Key (যেমন: match01)">
-            <input type="text" id="roomId" placeholder="Room ID">
-            <input type="text" id="roomPass" placeholder="Room Password">
-            <button class="btn" onclick="saveMatch()">সেভ বা আপডেট করুন</button>
+        <h2 class="section-title">Profile & Wallet</h2>
+        <div style="background:#21222d; padding:20px; border-radius:15px; border: 1px solid #2f3042;">
+            <p>ব্যালেন্স: <b id="userBalanceText" style="color:#ff4e50;">০</b> টাকা</p>
+            <input type="number" id="depAmount" placeholder="ডিপোজিট অ্যামাউন্ট">
+            <button class="btn-join" onclick="requestDeposit()">ডিপোজিট রিকোয়েস্ট</button>
+            <input type="number" id="withAmount" placeholder="উইথড্র (মিনিমাম ১০০)">
+            <input type="text" id="withNumber" placeholder="বিকাশ/নগদ নম্বর">
+            <button class="btn-join" style="background:#e67e22;" onclick="requestWithdraw()">উইথড্র রিকোয়েস্ট</button>
         </div>
 
-        <div class="panel-box">
-            <h2>লিডারবোর্ড আপডেট</h2>
-            <input type="text" id="winnerUid" placeholder="Winner UID">
-            <input type="number" id="winPoints" placeholder="পয়েন্ট">
-            <button class="btn" onclick="updateLeaderboard()">আপডেট করুন</button>
+        <div id="historySection" style="margin-top:20px;">
+            <h2 class="section-title">লেনদেনের ইতিহাস</h2>
+            <div id="historyList" style="background:#21222d; border-radius:15px; padding:10px; border: 1px solid #2f3042;"></div>
         </div>
 
-        <div class="panel-box">
-            <h2>উইথড্র রিকোয়েস্ট</h2>
-            <div id="withdrawList"></div>
-        </div>
-
-        <div class="panel-box">
-            <h2>লাভ ক্যালকুলেটর</h2>
-            <input type="number" id="players" placeholder="প্লেয়ার সংখ্যা">
-            <input type="number" id="fee" placeholder="এন্ট্রি ফি">
-            <input type="number" id="prize" placeholder="প্রাইজ মানি">
-            <button class="btn" style="background: green;" onclick="calculate()">হিসাব করুন</button>
-            <div id="output" style="margin-top:10px; font-weight:bold;"></div>
+        <div id="rulesSection" style="margin-top:20px; background:#21222d; padding:15px; border-radius:15px; border: 1px solid #2f3042;">
+            <h2 class="section-title">খেলার নিয়মাবলী</h2>
+            <p id="rulesDisplay" style="white-space: pre-line; line-height: 1.6; font-size: 14px; color: #ccc;"></p>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = { /* আপনার কনফিগ বসান */ };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        function checkAdmin() {
-            if (document.getElementById('adminPass').value === "17510") {
-                document.getElementById('passwordScreen').style.display = 'none';
-                document.getElementById('adminContent').style.display = 'block';
-            } else { alert("ভুল পাসওয়ার্ড!"); }
-        }
-
-        // ডিপোজিট রিকোয়েস্ট লিস্টিং
-        database.ref('requests/deposits').on('value', snapshot => {
-            const container = document.getElementById('depositList');
-            container.innerHTML = "";
-            snapshot.forEach(child => {
-                const req = child.val();
-                container.innerHTML += `<div style="background:#12131a; padding:10px; border-bottom:1px solid #2d2f3d; margin-bottom:5px;">
-                    User: ${req.email} <br> 
-                    নম্বর: ${req.number} | TID: ${req.tid} | টাকা: ${req.amount} <br>
-                    <button class="btn" style="background:#2ecc71; margin-top:5px;" onclick="approveDeposit('${child.key}', '${req.uid}', ${req.amount})">Approve</button>
-                </div>`;
-            });
+        // নোটিশ আপডেট লিসেনার
+        database.ref('app_settings/notice').on('value', snapshot => {
+            const data = snapshot.val();
+            const container = document.getElementById('noticeContainer');
+            if (data && data.text) {
+                container.style.display = 'block';
+                document.getElementById('noticeTitle').innerText = data.text;
+                document.getElementById('noticeLinkBtn').href = data.link;
+            } else {
+                container.style.display = 'none';
+            }
         });
 
-        // ব্যালেন্স এপ্রুভ ফাংশন
-        function approveDeposit(reqKey, uid, amount) {
-            database.ref('users/' + uid + '/balance').transaction(c => (c || 0) + amount)
-            .then(() => {
-                database.ref('requests/deposits/' + reqKey).remove();
-                alert("ব্যালেন্স এপ্রুভ হয়েছে!");
-            });
-        }
-
-        function saveMatch() {
-            const key = document.getElementById('matchId').value;
-            database.ref('matches/' + key).update({
-                roomId: document.getElementById('roomId').value,
-                roomPassword: document.getElementById('roomPass').value
-            }).then(() => alert("ম্যাচ ডিটেইলস আপডেট হয়েছে!"));
-        }
-
-        function updateLeaderboard() {
-            const uid = document.getElementById('winnerUid').value;
-            const pts = parseInt(document.getElementById('winPoints').value);
-            database.ref('leaderboard/' + uid + '/points').transaction(c => (c || 0) + pts)
-            .then(() => alert("পয়েন্ট আপডেট হয়েছে!"));
-        }
-
-        database.ref('requests/withdrawals').on('value', snapshot => {
-            const container = document.getElementById('withdrawList');
-            container.innerHTML = "";
-            snapshot.forEach(child => {
-                const req = child.val();
-                container.innerHTML += `<div style="background:#12131a; padding:10px; border-bottom:1px solid #2d2f3d;">
-                    User: ${req.email} | Amt: ${req.amount} <button onclick="database.ref('requests/withdrawals/${child.key}').remove()">Done</button>
-                </div>`;
-            });
+        // খেলার নিয়মাবলী লোড করার লিসেনার
+        database.ref('app_settings/rules').on('value', snapshot => {
+            const rules = snapshot.val();
+            document.getElementById('rulesDisplay').innerText = rules || "বর্তমানে কোনো নিয়মাবলী সেট করা হয়নি।";
         });
 
-        function calculate() {
-            let res = (document.getElementById('players').value * document.getElementById('fee').value) - document.getElementById('prize').value;
-            document.getElementById('output').innerHTML = "Profit: " + res + " TK";
+        // ট্রানজেকশন হিস্ট্রি লোড করার ফাংশন
+        function loadHistory(uid) {
+            database.ref('transactions/' + uid).on('value', snap => {
+                let list = document.getElementById('historyList');
+                list.innerHTML = "";
+                snap.forEach(c => {
+                    let t = c.val();
+                    list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #2f3042; font-size: 14px;">
+                        ${t.type}: <b>${t.amount} টাকা</b> | স্ট্যাটাস: <span style="color:#2ecc71;">${t.status}</span>
+                    </div>`;
+                });
+            });
         }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                database.ref('users/' + user.uid).on('value', s => {
+                    const bal = s.val() ? s.val().balance : 0;
+                    document.getElementById('userBalanceText').innerText = bal;
+                });
+                loadHistory(user.uid);
+            }
+        });
     </script>
 </body>
 </html>
-
