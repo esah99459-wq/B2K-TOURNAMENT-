@@ -153,7 +153,6 @@
         return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
     }
 
-    // এটি ডাটাবেসে নোটিশ সেভ করছে
     function uploadNotice() {
     const title = document.getElementById('adminTitle').value;
     const desc = document.getElementById('adminDesc').value;
@@ -172,9 +171,8 @@
     }).catch((error) => {
         alert("ভুল হয়েছে: " + error.message);
     });
-}
-
-            
+    }
+    
             
     </script>
 </body>
