@@ -144,40 +144,19 @@
         return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
     }
 
-    /// এই কোডটি আগের কোডটির পরিবর্তে বসান
-database.ref().on('value', (snapshot) => {
-    const slider = document.getElementById('noticeContent');
-    const allData = snapshot.val();
-    
-    // ডাটাবেসে 'notices' ফোল্ডারটি খুঁজছে
-    let noticeData = allData.notices;
-
-    // যদি 'notices' না পায়, তবে অ্যাডমিন প্যানেল সম্ভবত অন্য কোথাও ডাটা রাখছে
-    // আমরা এখন চেক করছি ডাটাবেসে আসলে নোটিশগুলো কোথায় আছে
-    if (!noticeData) {
-        console.log("ডাটাবেসে 'notices' নামে কিছু পাওয়া যায়নি। পুরো ডাটা:", allData);
-        slider.innerHTML = "<p>ডাটাবেস পাথ মেলেনি! কনসোল চেক করুন।</p>";
-        return;
-    }
-
-    // নোটিশ থাকলে দেখানোর লজিক
-    let htmlContent = "";
-    Object.keys(noticeData).forEach((key) => {
-        const n = noticeData[key];
-        htmlContent += `
-            <div class="notice-item" style="width: 100%; padding: 10px;">
-                <h3 style="color: #ff4e50;">${n.title || "নোটিশ"}</h3>
-                <p style="color: #ccc; margin: 5px 0;">${n.description || ""}</p>
-                ${n.video_link ? `<a href="${n.video_link}" target="_blank" style="color: #3498db;">ভিডিওটি দেখুন</a>` : ""}
-            </div>`;
-    });
-    slider.innerHTML = htmlContent;
-});
-
-        // ইনপুট বক্স খালি করে দেওয়া
+        database.ref('notices').set({
+        title: title,
+        description: desc,
+        video_link: link
+    }).then(() => {
+        alert("নোটিশ সফলভাবে পাঠানো হয়েছে!");
         document.getElementById('adminTitle').value = "";
         document.getElementById('adminDesc').value = "";
         document.getElementById('adminLink').value = "";
+    }).catch(error => {
+        alert("ভুল হয়েছে: " + error.message);
+    });
+
     }).catch(error => {
         alert("ভুল হয়েছে: " + error.message);
     });
