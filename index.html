@@ -75,19 +75,21 @@
         <input type="text" id="depTnx" placeholder="ট্রানজেকশন আইডি">
         <button class="btn-join" onclick="submitDeposit()">ডিপোজিট রিকোয়েস্ট</button>
     </div>
-    <div id="walletSection" class="content-section">
-    <h2 class="section-title">ওয়ালেট</h2>
+    <button id="depositBtn" onclick="toggleDepositForm()" style="width:100%; padding:15px; background:#ff4e50; color:white; border:none; border-radius:12px; cursor:pointer;">
+    ডিপোজিট করতে এখানে ক্লিক করুন
+</button>
 
-    <button id="depositBtn" onclick="toggleDepositForm()" style="width:100%; padding:15px; background:#ff4e50; color:white; border:none; border-radius:12px; font-weight:bold;">
-        ডিপোজিট করতে এখানে ক্লিক করুন
-    </button>
+<div id="depositForm" style="display:none; margin-top:15px; background:#21222d; padding:15px; border-radius:12px; border:1px solid #2f3042;">
+    <div style="background:#171821; padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid #ff4e50;">
+        <p style="color:#ff4e50; font-weight:bold;">আমাদের পেমেন্ট নাম্বার:</p>
+        <p>বিকাশ: <span id="bkashNum">লোডিং...</span></p>
+        <p>নগদ: <span id="nagadNum">লোডিং...</span></p>
+    </div>
+    <input type="number" id="depAmount" placeholder="পরিমাণ (টাকা)">
+    <input type="text" id="depTnx" placeholder="ট্রানজেকশন আইডি">
+    <button onclick="submitDeposit()" style="width:100%; padding:10px; background:#ff4e50; color:white; border:none; border-radius:8px;">কনফার্ম</button>
+</div>
 
-    <div id="depositForm" style="display:none; margin-top:15px; background:#21222d; padding:15px; border-radius:12px; border:1px solid #2f3042;">
-        <div style="background:#171821; padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid #ff4e50;">
-            <p style="color:#ff4e50; font-weight:bold;">আমাদের পেমেন্ট নাম্বার:</p>
-            <p>বিকাশ: <span id="bkashNum">লোড হচ্ছে...</span></p>
-            <p>নগদ: <span id="nagadNum">লোড হচ্ছে...</span></p>
-        </div>
 
         <input type="number" id="depAmount" placeholder="কত টাকা পাঠিয়েছেন?">
         <input type="text" id="depTnx" placeholder="আপনার ট্রানজেকশন আইডি">
@@ -202,14 +204,18 @@ function toggleDepositForm() {
     }
 }
 
-// ২. ডাটাবেস থেকে নাম্বারগুলো নিয়ে আসার জন্য
-database.ref('app_settings/payment_methods').on('value', snap => {
-    const data = snap.val();
-    if(data) {
-        document.getElementById('bkashNum').innerText = data.bkash || "সেট করা নেই";
-        document.getElementById('nagadNum').innerText = data.nagad || "সেট করা নেই";
+<script>
+    function toggleDepositForm() {
+        const form = document.getElementById('depositForm');
+        // এটি চেক করবে বক্সটি লুকানো আছে কি না, থাকলে খুলবে
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
     }
-});
+</script>
+
 
                                                                                           
     </script>
