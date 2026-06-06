@@ -44,6 +44,22 @@
 </head>
 <body>
 
+   <div id="rulesSection" class="content-section">
+    <h2 class="section-title">খেলার নিয়মাবলী</h2>
+    <div id="displayRules" style="background: #21222d; padding: 20px; border-radius: 12px; border: 1px solid #2f3042; color:#fff;">
+        লোডিং নিয়মাবলী...
+    </div>
+</div>
+
+<script>
+    // অ্যাপ চালু হওয়ার সময় নিয়মগুলো ডাটাবেস থেকে টেনে আনবে
+    database.ref('app_settings/rules').on('value', s => {
+        const rules = s.val();
+        document.getElementById('displayRules').innerText = rules ? rules : "এখনো কোনো নিয়ম সেট করা হয়নি।";
+    });
+</script>
+
+    
     <div id="authScreen">
         <h1 style="color: #ff4e50; margin-bottom: 20px;">B2K TOURNAMENT</h1>
         <div class="auth-container">
