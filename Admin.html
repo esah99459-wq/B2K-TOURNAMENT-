@@ -25,7 +25,7 @@
         <h1>B2K ফুল অ্যাডমিন কন্ট্রোল</h1>
 
         <div class="panel-box">
-            <h2>নোটিশ ও থাম্বনেইল লিংক আপডেট</h2>
+            <h2>নোটিশ ও ভিডিও লিংক</h2>
             <input type="text" id="adminTitle" placeholder="নোটিশের শিরোনাম">
             <input type="text" id="adminDesc" placeholder="বিস্তারিত লিখুন">
             <input type="text" id="adminLink" placeholder="ভিডিও লিংক (URL)">
@@ -38,25 +38,14 @@
             <button class="btn" style="background: #e67e22;" onclick="updateRules()">নিয়মাবলী সেভ করুন</button>
         </div>
         
-      <div class="panel-box">
-    <h3>পেমেন্ট নাম্বার আপডেট করুন</h3>
-    <input type="text" id="adminBkash" placeholder="বিকাশ নাম্বার">
-    <input type="text" id="adminNagad" placeholder="নগদ নাম্বার">
-    <input type="text" id="adminRocket" placeholder="রকেট নাম্বার">
-    <button onclick="saveNumbers()">সেভ করুন</button>
-</div>
+        <div class="panel-box">
+            <h2>পেমেন্ট নাম্বার</h2>
+            <input type="text" id="adminBkash" placeholder="বিকাশ নাম্বার">
+            <input type="text" id="adminNagad" placeholder="নগদ নাম্বার">
+            <input type="text" id="adminRocket" placeholder="রকেট নাম্বার">
+            <button class="btn" style="background: #9b59b6;" onclick="saveNumbers()">নাম্বার সেভ করুন</button>
+        </div>
 
-<script>
-    function saveNumbers() {
-        database.ref('app_settings/payment_methods').set({
-            bkash: document.getElementById('adminBkash').value,
-            nagad: document.getElementById('adminNagad').value,
-            rocket: document.getElementById('adminRocket').value
-        }).then(() => alert("নাম্বারগুলো ডাটাবেসে সেভ হয়েছে!"));
-    }
-</script>
-
-        
         <div class="panel-box">
             <h2>ডিপোজিট রিকোয়েস্ট</h2>
             <div id="depositList"></div>
@@ -85,8 +74,7 @@
             projectId: "b2k-tournament-aa8a3",
             storageBucket: "b2k-tournament-aa8a3.firebasestorage.app",
             messagingSenderId: "439255320420",
-            appId: "1:439255320420:web:1d4fd7f331484c8e651c71",
-            measurementId: "G-KVEN9F0Y81"
+            appId: "1:439255320420:web:1d4fd7f331484c8e651c71"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
@@ -99,62 +87,70 @@
         }
 
         function uploadNotice() {
-            const title = document.getElementById('adminTitle').value;
-            const desc = document.getElementById('adminDesc').value;
-            const link = document.getElementById('adminLink').value;
-            if (title === "" || desc === "") return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
-            database.ref('app_settings/notice').set({ title, description: desc, video_link: link })
-            .then(() => alert("নোটিশ সফলভাবে পাবলিশ হয়েছে!"))
-            .catch((error) => alert("ভুল হয়েছে: " + error.message));
+            database.ref('app_settings/notice').set({ 
+                title: document.getElementById('adminTitle').value, 
+                description: document.getElementById('adminDesc').value, 
+                video_link: document.getElementById('adminLink').value 
+            }).then(() => alert("নোটিশ পাবলিশ হয়েছে!"));
         }
 
         function updateRules() {
-            database.ref('app_settings/rules').set(document.getElementById('rulesText').value)
-            .then(() => alert("নিয়মাবলী আপডেট হয়েছে!"));
+            database.ref('app_settings/rules').set(document.getElementById('rulesText').value).then(() => alert("নিয়মাবলী সেভ হয়েছে!"));
         }
 
-        // --- ডাটা লোড করার অটোমেটিক ফাংশন (যা আপনি লাস্টে বসাতে চেয়েছিলেন) ---
-        database.ref('app_settings/notice').on('value', snap => {
-            if(snap.exists()){
-                let n = snap.val();
-                document.getElementById('adminTitle').value = n.title || "";
-                document.getElementById('adminDesc').value = n.description || "";
-                document.getElementById('adminLink').value = n.video_link || "";
+        function saveNumbers() {
+            database.ref('app_settings/payment_methods').set({
+                bkash: document.getElementById('adminBkash').value,
+                nagad: document.getElementById('adminNagad').value,
+                rocket: document.getElementById('adminRocket').value
+            }).then(() => alert("নাম্বারগুলো সেভ হয়েছে!"));
+        }
+
+        // ডাটা লোড (পেমেন্ট, নোটিশ, রুলস)
+        database.ref('app_settings').on('value', snap => {
+            let data = snap.val();
+            if(!data) return;
+            if(data.notice) {
+                document.getElementById('adminTitle').value = data.notice.title || "";
+                document.getElementById('adminDesc').value = data.notice.description || "";
+                document.getElementById('adminLink').value = data.notice.video_link || "";
+            }
+            if(data.rules) document.getElementById('rulesText').value = data.rules;
+            if(data.payment_methods) {
+                document.getElementById('adminBkash').value = data.payment_methods.bkash || "";
+                document.getElementById('adminNagad').value = data.payment_methods.nagad || "";
+                document.getElementById('adminRocket').value = data.payment_methods.rocket || "";
             }
         });
 
-        database.ref('app_settings/rules').on('value', snap => {
-            if(snap.exists()) document.getElementById('rulesText').value = snap.val();
-        });
-        
-        // --- অন্যান্য লিস্ট ফাংশন ---
+        // ডিপোজিট লিস্ট
         database.ref('requests/deposits').on('value', snap => {
             const list = document.getElementById('depositList');
             list.innerHTML = "";
             snap.forEach(child => {
                 let d = child.val();
-                list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #444;">UID: ${d.uid} | টাকা: ${d.amount} <button onclick="approveDeposit('${child.key}', '${d.uid}', ${d.amount})">Approve</button></div>`;
+                list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #444;">UID: ${d.uid} | টাকা: ${d.amount} | TNX: ${d.tid} <button onclick="approveDeposit('${child.key}', '${d.uid}', ${d.amount})">Approve</button></div>`;
             });
         });
 
         function approveDeposit(key, uid, amt) {
-            database.ref('users/' + uid + '/balance').transaction(c => (c || 0) + amt);
+            database.ref('users/' + uid + '/balance').transaction(c => (c || 0) + Number(amt));
             database.ref('requests/deposits/' + key).remove();
-            alert("সফল!");
+            alert("এপ্রুভ হয়েছে!");
         }
 
-        database.ref('requests/withdrawals').on('value', snap => {
+        // উইথড্র লিস্ট (সঠিক পাথে ঠিক করা হয়েছে)
+        database.ref('requests/withdraws').on('value', snap => {
             const list = document.getElementById('withdrawList');
             list.innerHTML = "";
             snap.forEach(child => {
                 let w = child.val();
-                list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #444;">UID: ${w.uid} | টাকা: ${w.amount} <button onclick="database.ref('requests/withdrawals/${child.key}').remove()">Done</button></div>`;
+                list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #444;">UID: ${w.uid} | টাকা: ${w.amount} | নাম্বার: ${w.number} <button onclick="database.ref('requests/withdraws/${child.key}').remove()">Done</button></div>`;
             });
         });
 
         function addMatch() {
             let mData = { name: document.getElementById('matchName').value, fee: document.getElementById('matchFee').value, time: document.getElementById('matchTime').value };
-            if(!mData.name || !mData.fee || !mData.time) return alert("সব ঘর পূরণ করুন!");
             database.ref('matches').push(mData).then(() => alert("ম্যাচ যোগ হয়েছে!"));
         }
 
@@ -166,11 +162,6 @@
                 list.innerHTML += `<div style="background:#262738; padding:5px; margin:5px 0;">${m.name} - ফি: ${m.fee} | সময়: ${m.time} <button onclick="database.ref('matches/${child.key}').remove()">Delete</button></div>`;
             });
         });
-   function updatePayment() {
-    const num = document.getElementById('adminPaymentNum').value;
-    database.ref('app_settings/payment_number').set(num).then(() => alert("নাম্বার আপডেট হয়েছে!"));
-                }
-                                   
     </script>
 </body>
 </html>
