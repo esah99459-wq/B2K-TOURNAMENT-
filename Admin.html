@@ -39,10 +39,23 @@
         </div>
         
       <div class="panel-box">
-    <h2>পেমেন্ট মেথড আপডেট (বিকাশ/নগদ)</h2>
-    <input type="text" id="adminPaymentNum" placeholder="পেমেন্ট নাম্বার দিন">
-    <button class="btn" style="background: #9b59b6;" onclick="updatePayment()">সেভ করুন</button>
-      </div>
+    <h3>পেমেন্ট নাম্বার আপডেট করুন</h3>
+    <input type="text" id="adminBkash" placeholder="বিকাশ নাম্বার">
+    <input type="text" id="adminNagad" placeholder="নগদ নাম্বার">
+    <input type="text" id="adminRocket" placeholder="রকেট নাম্বার">
+    <button onclick="saveNumbers()">সেভ করুন</button>
+</div>
+
+<script>
+    function saveNumbers() {
+        database.ref('app_settings/payment_methods').set({
+            bkash: document.getElementById('adminBkash').value,
+            nagad: document.getElementById('adminNagad').value,
+            rocket: document.getElementById('adminRocket').value
+        }).then(() => alert("নাম্বারগুলো ডাটাবেসে সেভ হয়েছে!"));
+    }
+</script>
+
         
         <div class="panel-box">
             <h2>ডিপোজিট রিকোয়েস্ট</h2>
