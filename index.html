@@ -10,34 +10,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
         body { background-color: #171821; color: #fff; padding-bottom: 80px; }
         #authScreen { display: flex; flex-direction: column; justify-content: center; align-items: center; position: fixed; top:0; left:0; width:100%; height:100%; background:#171821; z-index: 9999; padding: 20px; }
-        .auth-container { width: 100%; max-width: 320px; background: #21222d; padding: 25px; border-radius: 16px; border: 1px solid #2f3042; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
-        .auth-toggle { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 2px solid #2f3042; padding-bottom: 10px; }
-        .toggle-btn { background: none; border: none; color: #7e809a; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .toggle-btn.active { color: #ff4e50; border-bottom: 3px solid #ff4e50; padding-bottom: 8px; }
+        .auth-container { width: 100%; max-width: 320px; background: #21222d; padding: 25px; border-radius: 16px; border: 1px solid #2f3042; }
+        .auth-toggle { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 2px solid #2f3042; }
+        .toggle-btn { background: none; border: none; color: #7e809a; font-size: 16px; font-weight: bold; cursor: pointer; padding-bottom: 8px; }
+        .toggle-btn.active { color: #ff4e50; border-bottom: 3px solid #ff4e50; }
         input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #2f3042; background: #171821; color: white; outline: none; }
-        .app-header { background: #21222d; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2f3042; }
+        .app-header { background: #21222d; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .content-section { display: none; padding: 15px; }
         .content-section.active { display: block; }
-        .section-title { font-size: 16px; color: #fff; margin-bottom: 15px; font-weight: bold; border-left: 4px solid #ff4e50; padding-left: 8px; }
+        .section-title { font-size: 16px; color: #fff; margin-bottom: 15px; border-left: 4px solid #ff4e50; padding-left: 8px; }
         .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .match-card { background: #21222d; border-radius: 14px; border: 1px solid #2f3042; overflow: hidden; }
-        .fee-badge { background: #ff4e50; padding: 3px 8px; border-radius: 6px; font-size: 11px; float: right; margin: 5px; }
-        .btn-join { background: #ff4e50; color: #fff; border: none; padding: 10px; width: 100%; cursor: pointer; }
+        .match-card { background: #21222d; padding: 10px; border-radius: 14px; border: 1px solid #2f3042; }
+        .btn-join { background: #ff4e50; color: #fff; border: none; padding: 10px; width: 100%; cursor: pointer; border-radius: 8px; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #21222d; display: flex; justify-content: space-around; padding: 10px 0; }
         .nav-item { color: #7e809a; cursor: pointer; text-align: center; font-size: 12px; border:none; background:none; }
         .nav-item.active { color: #ff4e50; }
     </style>
 </head>
 <body>
-    <div id="noticeSlider" style="width: 100%; height: 180px; overflow: hidden; position: relative; background: #21222d; margin-bottom: 15px; border-radius: 12px; border: 1px solid #2f3042;">
-    <div id="noticeContent" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px;">
-        <p>নোটিশ লোড হচ্ছে...</p>
+
+    <div id="noticeSlider" style="padding: 15px;">
+        <div id="userNoticeArea" style="background:#21222d; padding:15px; border-radius:12px; border:1px solid #ff4e50;">
+            <h3 id="noticeTitle">নোটিশ লোড হচ্ছে...</h3>
+            <p id="noticeDesc"></p>
+            <a id="videoLink" href="#" style="color:#3498db; display:block; margin-top:5px;">ভিডিও দেখুন</a>
+        </div>
     </div>
-</div>
-;
 
     <div id="authScreen">
         <h1 style="color: #ff4e50; margin-bottom: 20px;">B2K TOURNAMENT</h1>
@@ -54,8 +55,8 @@
     </div>
 
     <div class="app-header">
-        <div><div style="font-size: 11px;">স্বাগতম, <span id="userName">...</span></div><div style="color:#ff4e50; font-weight:bold;">B2K TOURNAMENT</div></div>
-        <div style="background:#ff4e501a; color:#ff4e50; padding:6px 12px; border-radius:20px;">৳<span id="userBalance">0</span></div>
+        <div>স্বাগতম, <span id="userName">...</span></div>
+        <div style="color:#ff4e50;">৳<span id="userBalance">0</span></div>
     </div>
 
     <div id="playSection" class="content-section active">
@@ -65,7 +66,7 @@
 
     <div id="rulesSection" class="content-section">
         <h2 class="section-title">খেলার নিয়মাবলী</h2>
-        <div id="displayRules" style="background: #21222d; padding: 20px; border-radius: 12px; border: 1px solid #2f3042;">লোডিং...</div>
+        <div id="displayRules" style="background: #21222d; padding: 20px; border-radius: 12px;">লোডিং...</div>
     </div>
 
     <div id="walletSection" class="content-section">
@@ -94,9 +95,18 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        let currentUserUid = null;
-        let currentBalance = 0;
 
+        // নোটিশ লোড করার কোড
+        database.ref('app_settings/notice').on('value', snap => {
+            if(snap.exists()){
+                let n = snap.val();
+                document.getElementById('noticeTitle').innerText = n.title;
+                document.getElementById('noticeDesc').innerText = n.description;
+                document.getElementById('videoLink').href = n.video_link;
+            }
+        });
+
+        // অন্য সব ফাংশন...
         function switchTab(id, el) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -120,74 +130,24 @@
             }
         }
 
-        function joinMatch(mid, name, fee) {
-            if (currentBalance < fee) return alert("ব্যালেন্স কম!");
-            database.ref('users/' + currentUserUid + '/balance').set(currentBalance - fee);
-            database.ref('matches/' + mid + '/participants/' + currentUserUid).set({joinedAt: new Date().toLocaleTimeString()});
-            alert(name + " ম্যাচে জয়েন করেছেন!");
-        }
-
-        function submitDeposit() {
-            database.ref('requests/deposits').push({ uid: currentUserUid, amount: Number(document.getElementById('depAmount').value), tid: document.getElementById('depTnx').value, status: 'pending' });
-            alert("রিকোয়েস্ট পাঠানো হয়েছে!");
-        }
-
         auth.onAuthStateChanged(user => {
             if (user) {
-                currentUserUid = user.uid;
                 document.getElementById('authScreen').style.display = 'none';
                 database.ref('users/' + user.uid).on('value', s => {
                     const data = s.val();
-                    currentBalance = data.balance || 0;
                     document.getElementById('userName').innerText = data.name;
-                    document.getElementById('userBalance').innerText = currentBalance;
+                    document.getElementById('userBalance').innerText = data.balance || 0;
                 });
-                
-                // শুধুমাত্র একটি ম্যাচ লিস্ট লিসেনার
                 database.ref('matches').on('value', s => {
                     const cont = document.getElementById('userMatchList');
                     cont.innerHTML = "";
                     s.forEach(c => {
                         const m = c.val();
-                        cont.innerHTML += `<div class="match-card"><span class="fee-badge">৳${m.fee}</span><div style="padding:10px"><h4>${m.name}</h4><p>সময়: ${m.time}</p><button class="btn-join" onclick="joinMatch('${c.key}', '${m.name}', ${m.fee})">জয়েন করুন</button></div></div>`;
+                        cont.innerHTML += `<div class="match-card"><h4>${m.name}</h4><p>ফি: ৳${m.fee}</p><button class="btn-join" onclick="alert('জয়েন করা হয়েছে!')">জয়েন</button></div>`;
                     });
-                });
-
-                // নিয়মাবলী
-                database.ref('app_settings/rules').on('value', s => {
-                    document.getElementById('displayRules').innerText = s.val() || "এখনো নিয়ম নেই।";
                 });
             }
         });
-        database.ref('app_settings/notice').on('value', (snapshot) => {
-    // আগের মতোই বাকি কোড থাকবে
-    const n = snapshot.val();
-    // ...
-});
-
-
-
-
-   <div id="userNoticeArea" style="background:#1c1d26; padding:15px; border-radius:10px; color:#fff; border:1px solid #ff4e50;">
-    <h3 id="noticeTitle">নোটিশ লোড হচ্ছে...</h3>
-    <p id="noticeDesc"></p>
-    <a id="videoLink" href="#" style="color:#3498db;">ভিডিও দেখুন</a>
-</div>
-
-<script>
-    // এখানে আপনার সেই একই firebaseConfig বসাতে হবে যা অ্যাডমিন প্যানেলে আছে
-    // firebase.initializeApp(firebaseConfig); 
-    
-    database.ref('app_settings/notice').on('value', snap => {
-        if(snap.exists()){
-            let n = snap.val();
-            document.getElementById('noticeTitle').innerText = n.title;
-            document.getElementById('noticeDesc').innerText = n.description;
-            document.getElementById('videoLink').href = n.video_link;
-        }
-    });
-</script>
-    
     </script>
 </body>
 </html>
