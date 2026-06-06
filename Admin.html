@@ -154,15 +154,22 @@
     }
 
     // এটি ডাটাবেসে নোটিশ সেভ করছে
-    database.ref('app_settings/notice').set({
-    title: title,
-    description: desc,
-    video_link: link
-});
+    function uploadNotice() {
+    const title = document.getElementById('adminTitle').value;
+    const desc = document.getElementById('adminDesc').value;
+    const link = document.getElementById('adminLink').value;
 
+    if (title === "" || desc === "") {
+        return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
+    }
+
+    database.ref('app_settings/notice').set({
+        title: title,
+        description: desc,
+        video_link: link
     }).then(() => {
         alert("নোটিশ সফলভাবে পাবলিশ হয়েছে!");
-    }).catch(error => {
+    }).catch((error) => {
         alert("ভুল হয়েছে: " + error.message);
     });
 }
