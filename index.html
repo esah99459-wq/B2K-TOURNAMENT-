@@ -159,23 +159,12 @@
                 });
             }
         });
-        database.ref('notices').on('value', (snapshot) => {
-    const slider = document.getElementById('noticeContent');
-    const n = snapshot.val(); // এখানে লুপের দরকার নেই, কারণ আপনি 'set' ব্যবহার করেছেন
-
-    if (n) {
-        // যদি ডাটা থাকে, তবে সরাসরি দেখাবে
-        slider.innerHTML = `
-            <div class="notice-item" style="padding: 15px; border: 1px solid #ff4e50; margin: 10px; border-radius: 8px;">
-                <h3 style="color: #ff4e50;">${n.title}</h3>
-                <p style="color: #ccc; margin: 10px 0;">${n.description}</p>
-                ${n.video_link ? `<a href="${n.video_link}" target="_blank" style="color: #3498db; text-decoration: none;">▶ ভিডিওটি দেখুন</a>` : ""}
-            </div>`;
-    } else {
-        // ডাটা না থাকলে
-        slider.innerHTML = "<p style='padding: 20px; text-align: center;'>বর্তমানে কোনো নোটিশ নেই।</p>";
-    }
+        database.ref('app_settings/notice').on('value', (snapshot) => {
+    // আগের মতোই বাকি কোড থাকবে
+    const n = snapshot.val();
+    // ...
 });
+
 
 
 
