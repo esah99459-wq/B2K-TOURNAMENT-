@@ -9,7 +9,7 @@
         body { background: #12131a; color: #fff; padding: 20px; font-family: sans-serif; }
         .panel-box { background: #1c1d26; padding: 20px; border-radius: 12px; border: 1px solid #2d2f3d; margin-bottom: 20px; }
         h2 { color: #ffbc00; font-size: 16px; border-left: 4px solid #ff4e50; padding-left: 10px; margin-bottom: 10px; }
-        input { width: 100%; padding: 10px; margin-bottom: 10px; background: #12131a; border: 1px solid #2d2f3d; color: #fff; border-radius: 5px; }
+        input, textarea { width: 100%; padding: 10px; margin-bottom: 10px; background: #12131a; border: 1px solid #2d2f3d; color: #fff; border-radius: 5px; box-sizing: border-box; }
         .btn { width: 100%; padding: 10px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; color: #fff; margin-bottom: 10px; }
     </style>
 </head>
@@ -26,23 +26,17 @@
 
         <div class="panel-box">
             <h2>নোটিশ ও থাম্বনেইল লিংক আপডেট</h2>
-            <input type="text" id="noticeTitle" placeholder="নোটিশের শিরোনাম">
-            <input type="text" id="noticeLink" placeholder="ইমেজ বা ভিডিও লিংক (URL)">
-            <button class="btn" style="background: #3498db;" onclick="updateNotice()">নোটিশ পাবলিশ করুন</button>
+            <input type="text" id="adminTitle" placeholder="নোটিশের শিরোনাম">
+            <input type="text" id="adminDesc" placeholder="বিস্তারিত লিখুন">
+            <input type="text" id="adminLink" placeholder="ভিডিও লিংক (URL)">
+            <button class="btn" style="background: #3498db;" onclick="uploadNotice()">নোটিশ পাবলিশ করুন</button>
         </div>
-<div class="panel-box">
-    <h2>নিয়মাবলী (Rules) আপডেট</h2>
-    <textarea id="rulesText" style="width:100%; height:100px; background:#12131a; color:#fff; border:1px solid #2d2f3d;"></textarea>
-    <button class="btn" style="background: #e67e22;" onclick="updateRules()">নিয়মাবলী সেভ করুন</button>
-</div>
 
-<script>
-    function updateRules() {
-        const text = document.getElementById('rulesText').value;
-        database.ref('app_settings/rules').set(text)
-        .then(() => alert("নিয়মাবলী আপডেট হয়েছে!"));
-    }
-</script>
+        <div class="panel-box">
+            <h2>নিয়মাবলী (Rules) আপডেট</h2>
+            <textarea id="rulesText" style="height:100px;"></textarea>
+            <button class="btn" style="background: #e67e22;" onclick="updateRules()">নিয়মাবলী সেভ করুন</button>
+        </div>
         
         <div class="panel-box">
             <h2>ডিপোজিট রিকোয়েস্ট</h2>
@@ -65,17 +59,16 @@
     </div>
 
     <script>
-        // এখানে আপনার ফায়ারবেস কনফিগ বসান
         const firebaseConfig = {
-  apiKey: "AIzaSyAoWus33bLMhSNz4rG7G9QNqYqvq2obMs8",
-  authDomain: "b2k-tournament-aa8a3.firebaseapp.com",
-  databaseURL: "https://b2k-tournament-aa8a3-default-rtdb.firebaseio.com",
-  projectId: "b2k-tournament-aa8a3",
-  storageBucket: "b2k-tournament-aa8a3.firebasestorage.app",
-  messagingSenderId: "439255320420",
-  appId: "1:439255320420:web:1d4fd7f331484c8e651c71",
-  measurementId: "G-KVEN9F0Y81"
-};
+            apiKey: "AIzaSyAoWus33bLMhSNz4rG7G9QNqYqvq2obMs8",
+            authDomain: "b2k-tournament-aa8a3.firebaseapp.com",
+            databaseURL: "https://b2k-tournament-aa8a3-default-rtdb.firebaseio.com",
+            projectId: "b2k-tournament-aa8a3",
+            storageBucket: "b2k-tournament-aa8a3.firebasestorage.app",
+            messagingSenderId: "439255320420",
+            appId: "1:439255320420:web:1d4fd7f331484c8e651c71",
+            measurementId: "G-KVEN9F0Y81"
+        };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
@@ -86,15 +79,29 @@
             } else { alert("ভুল পাসওয়ার্ড!"); }
         }
 
-        // নোটিশ ও লিংক আপডেট
-        function updateNotice() {
+        function uploadNotice() {
+            const title = document.getElementById('adminTitle').value;
+            const desc = document.getElementById('adminDesc').value;
+            const link = document.getElementById('adminLink').value;
+
+            if (title === "" || desc === "") {
+                return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
+            }
+
             database.ref('app_settings/notice').set({
-                title: document.getElementById('noticeTitle').value,
-                link: document.getElementById('noticeLink').value
-            }).then(() => alert("নোটিশ আপডেট হয়েছে!"));
+                title: title,
+                description: desc,
+                video_link: link
+            }).then(() => alert("নোটিশ সফলভাবে পাবলিশ হয়েছে!"))
+              .catch((error) => alert("ভুল হয়েছে: " + error.message));
         }
 
-        // ডিপোজিট হ্যান্ডলিং
+        function updateRules() {
+            const text = document.getElementById('rulesText').value;
+            database.ref('app_settings/rules').set(text)
+            .then(() => alert("নিয়মাবলী আপডেট হয়েছে!"));
+        }
+
         database.ref('requests/deposits').on('value', snap => {
             const list = document.getElementById('depositList');
             list.innerHTML = "";
@@ -110,7 +117,6 @@
             alert("সফল!");
         }
 
-        // উইথড্র হ্যান্ডলিং
         database.ref('requests/withdrawals').on('value', snap => {
             const list = document.getElementById('withdrawList');
             list.innerHTML = "";
@@ -120,7 +126,6 @@
             });
         });
 
-        // ম্যাচ ম্যানেজমেন্ট
         function addMatch() {
             let mData = { name: document.getElementById('matchName').value, fee: document.getElementById('matchFee').value, time: document.getElementById('matchTime').value };
             if(!mData.name || !mData.fee || !mData.time) return alert("সব ঘর পূরণ করুন!");
@@ -135,34 +140,6 @@
                 list.innerHTML += `<div style="background:#262738; padding:5px; margin:5px 0;">${m.name} - ফি: ${m.fee} | সময়: ${m.time} <button onclick="database.ref('matches/${child.key}').remove()">Delete</button></div>`;
             });
         });
-    function uploadNotice() {
-    const title = document.getElementById('adminTitle').value;
-    const desc = document.getElementById('adminDesc').value;
-    const link = document.getElementById('adminLink').value;
-
-    if(title === "" || desc === "") {
-        return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
-    }
-
-        function uploadNotice() {
-    const title = document.getElementById('adminTitle').value;
-    const desc = document.getElementById('adminDesc').value;
-    const link = document.getElementById('adminLink').value;
-
-    if (title === "" || desc === "") {
-        return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
-    }
-
-    database.ref('app_settings/notice').set({
-        title: title,
-        description: desc,
-        video_link: link
-    }).then(() => {
-        alert("নোটিশ সফলভাবে পাবলিশ হয়েছে!");
-    }).catch((error) => {
-        alert("ভুল হয়েছে: " + error.message);
-    });
-                }     
     </script>
 </body>
 </html>
