@@ -140,6 +140,22 @@
                 list.innerHTML += `<div style="background:#262738; padding:5px; margin:5px 0;">${m.name} - ফি: ${m.fee} | সময়: ${m.time} <button onclick="database.ref('matches/${child.key}').remove()">Delete</button></div>`;
             });
         });
+    // প্যানেল লোড হওয়ার সাথে সাথে ডাটা থেকে তথ্য নিয়ে বক্সে বসানোর কোড
+database.ref('app_settings/notice').on('value', snap => {
+    if(snap.exists()){
+        let n = snap.val();
+        document.getElementById('adminTitle').value = n.title || "";
+        document.getElementById('adminDesc').value = n.description || "";
+        document.getElementById('adminLink').value = n.video_link || "";
+    }
+});
+
+database.ref('app_settings/rules').on('value', snap => {
+    if(snap.exists()){
+        document.getElementById('rulesText').value = snap.val();
+    }
+});
+        
     </script>
 </body>
 </html>
