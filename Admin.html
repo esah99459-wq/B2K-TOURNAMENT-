@@ -2,65 +2,124 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>B2K Admin Control Panel</title>
+    <title>B2K Premium Admin Panel</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { background: #171821; color: #fff; padding: 20px; font-family: sans-serif; }
-        .box { background: #21222d; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2f3042; }
-        button { background: #ff4e50; color: #fff; border: none; padding: 10px; cursor: pointer; border-radius: 6px; }
+        body { background: #12131a; color: #fff; padding: 20px; font-family: sans-serif; }
+        .panel-box { background: #1c1d26; padding: 20px; border-radius: 12px; border: 1px solid #2d2f3d; margin-bottom: 20px; }
+        h2 { color: #ffbc00; font-size: 16px; border-left: 4px solid #ff4e50; padding-left: 10px; margin-bottom: 10px; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; background: #12131a; border: 1px solid #2d2f3d; color: #fff; border-radius: 5px; }
+        .btn { width: 100%; padding: 10px; border: none; cursor: pointer; font-weight: bold; border-radius: 5px; color: #fff; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h1>B2K অ্যাডমিন ড্যাশবোর্ড</h1>
 
-    <div class="box">
-        <h2>ডিপোজিট রিকোয়েস্ট</h2>
-        <div id="depositList">লোড হচ্ছে...</div>
+    <div id="loginScreen" style="text-align: center; margin-top: 100px;">
+        <h2>অ্যাডমিন লগইন</h2>
+        <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন">
+        <button class="btn" style="background:#ff4e50;" onclick="checkPassword()">প্রবেশ করুন</button>
     </div>
 
-    <div class="box">
-        <h2>উইথড্র রিকোয়েস্ট</h2>
-        <div id="withdrawList">লোড হচ্ছে...</div>
+    <div id="adminPanel" style="display:none;">
+        <h1>B2K ফুল অ্যাডমিন কন্ট্রোল</h1>
+
+        <div class="panel-box">
+            <h2>নোটিশ ও থাম্বনেইল লিংক আপডেট</h2>
+            <input type="text" id="noticeTitle" placeholder="নোটিশের শিরোনাম">
+            <input type="text" id="noticeLink" placeholder="ইমেজ বা ভিডিও লিংক (URL)">
+            <button class="btn" style="background: #3498db;" onclick="updateNotice()">নোটিশ পাবলিশ করুন</button>
+        </div>
+
+        <div class="panel-box">
+            <h2>ডিপোজিট রিকোয়েস্ট</h2>
+            <div id="depositList"></div>
+        </div>
+        
+        <div class="panel-box">
+            <h2>উইথড্র রিকোয়েস্ট</h2>
+            <div id="withdrawList"></div>
+        </div>
+
+        <div class="panel-box">
+            <h2>ম্যাচ ম্যানেজমেন্ট</h2>
+            <input type="text" id="matchName" placeholder="ম্যাচের নাম">
+            <input type="number" id="matchFee" placeholder="এন্ট্রি ফি">
+            <input type="text" id="matchTime" placeholder="সময় (যেমন: ১০:৩০ PM)">
+            <button class="btn" style="background: #2ecc71;" onclick="addMatch()">নতুন ম্যাচ যোগ করুন</button>
+            <div id="matchList"></div>
+        </div>
     </div>
 
     <script>
-        const firebaseConfig = { /* আপনার কনফিগ এখানে বসান */ };
+        // এখানে আপনার ফায়ারবেস কনফিগ বসান
+        const firebaseConfig = {
+  apiKey: "AIzaSyAoWus33bLMhSNz4rG7G9QNqYqvq2obMs8",
+  authDomain: "b2k-tournament-aa8a3.firebaseapp.com",
+  databaseURL: "https://b2k-tournament-aa8a3-default-rtdb.firebaseio.com",
+  projectId: "b2k-tournament-aa8a3",
+  storageBucket: "b2k-tournament-aa8a3.firebasestorage.app",
+  messagingSenderId: "439255320420",
+  appId: "1:439255320420:web:1d4fd7f331484c8e651c71",
+  measurementId: "G-KVEN9F0Y81"
+};
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // ডিপোজিট রিকোয়েস্ট লোড ও এপ্রুভ
-        database.ref('requests/deposits').on('value', snapshot => {
+        function checkPassword() {
+            if (document.getElementById('adminPass').value === "17510") {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+            } else { alert("ভুল পাসওয়ার্ড!"); }
+        }
+
+        // নোটিশ ও লিংক আপডেট
+        function updateNotice() {
+            database.ref('app_settings/notice').set({
+                title: document.getElementById('noticeTitle').value,
+                link: document.getElementById('noticeLink').value
+            }).then(() => alert("নোটিশ আপডেট হয়েছে!"));
+        }
+
+        // ডিপোজিট হ্যান্ডলিং
+        database.ref('requests/deposits').on('value', snap => {
             const list = document.getElementById('depositList');
             list.innerHTML = "";
-            snapshot.forEach(child => {
-                const d = child.val();
-                list.innerHTML += `<div style="border-bottom:1px solid #444; padding:10px;">
-                    UID: ${d.uid} | Amount: ${d.amount} | TID: ${d.tid} 
-                    <button onclick="approveDeposit('${child.key}', '${d.uid}', ${d.amount})">এপ্রুভ করুন</button>
-                </div>`;
+            snap.forEach(child => {
+                let d = child.val();
+                list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #444;">UID: ${d.uid} | টাকা: ${d.amount} <button onclick="approveDeposit('${child.key}', '${d.uid}', ${d.amount})">Approve</button></div>`;
             });
         });
 
-        function approveDeposit(key, uid, amount) {
-            database.ref('users/' + uid + '/balance').once('value', s => {
-                const current = s.val().balance || 0;
-                database.ref('users/' + uid + '/balance').set(current + amount);
-                database.ref('requests/deposits/' + key).remove();
-                alert("ব্যালেন্স আপডেট হয়েছে!");
-            });
+        function approveDeposit(key, uid, amt) {
+            database.ref('users/' + uid + '/balance').transaction(c => (c || 0) + amt);
+            database.ref('requests/deposits/' + key).remove();
+            alert("সফল!");
         }
 
-        // উইথড্র রিকোয়েস্ট লোড ও ডিলিট (পেমেন্ট করার পর)
-        database.ref('requests/withdrawals').on('value', snapshot => {
+        // উইথড্র হ্যান্ডলিং
+        database.ref('requests/withdrawals').on('value', snap => {
             const list = document.getElementById('withdrawList');
             list.innerHTML = "";
-            snapshot.forEach(child => {
-                const w = child.val();
-                list.innerHTML += `<div style="border-bottom:1px solid #444; padding:10px;">
-                    UID: ${w.uid} | ${w.method} | ${w.number} | ${w.amount} TK 
-                    <button onclick="database.ref('requests/withdrawals/${child.key}').remove()">পেমেন্ট হয়েছে (Delete)</button>
-                </div>`;
+            snap.forEach(child => {
+                let w = child.val();
+                list.innerHTML += `<div style="padding:5px; border-bottom:1px solid #444;">UID: ${w.uid} | টাকা: ${w.amount} <button onclick="database.ref('requests/withdrawals/${child.key}').remove()">Done</button></div>`;
+            });
+        });
+
+        // ম্যাচ ম্যানেজমেন্ট
+        function addMatch() {
+            let mData = { name: document.getElementById('matchName').value, fee: document.getElementById('matchFee').value, time: document.getElementById('matchTime').value };
+            if(!mData.name || !mData.fee || !mData.time) return alert("সব ঘর পূরণ করুন!");
+            database.ref('matches').push(mData).then(() => alert("ম্যাচ যোগ হয়েছে!"));
+        }
+
+        database.ref('matches').on('value', snap => {
+            const list = document.getElementById('matchList');
+            list.innerHTML = "<h3>বিদ্যমান ম্যাচসমূহ:</h3>";
+            snap.forEach(child => {
+                let m = child.val();
+                list.innerHTML += `<div style="background:#262738; padding:5px; margin:5px 0;">${m.name} - ফি: ${m.fee} | সময়: ${m.time} <button onclick="database.ref('matches/${child.key}').remove()">Delete</button></div>`;
             });
         });
     </script>
