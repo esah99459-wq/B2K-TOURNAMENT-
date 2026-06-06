@@ -32,12 +32,32 @@
     </style>
 </head>
 <body>
-    <!-- নোটিশ স্লাইডার সেকশন -->
-<div id="noticeSlider" style="width: 100%; height: 180px; overflow: hidden; position: relative; background: #21222d; margin-bottom: 15px; border-radius: 12px; border: 1px solid #2f3042;">
-    <div id="noticeContent" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px;">
-        <p>নোটিশ লোড হচ্ছে...</p>
-    </div>
-</div>
+    // নোটিশ স্লাইডার লজিক - এটি আপনার আগের সব লজিকের নিচে বসান
+database.ref('notices').on('value', (snapshot) => {
+    const slider = document.getElementById('noticeContent');
+    if (!slider) return;
+
+    let htmlContent = "";
+    
+    // ডাটাবেস থেকে সব নোটিশ লুপ করে আনা হচ্ছে
+    snapshot.forEach((childSnapshot) => {
+        const n = childSnapshot.val();
+        // এখানে আপনার ডিজাইন অনুযায়ী নোটিশগুলো তৈরি হচ্ছে
+        htmlContent += `
+            <div class="notice-item" style="width: 100%;">
+                <h3 style="color: #ff4e50;">${n.title}</h3>
+                <p style="color: #ccc; margin: 10px 0;">${n.description}</p>
+                ${n.video_link ? `<a href="${n.video_link}" target="_blank" style="color: #3498db;">ভিডিওটি দেখুন</a>` : ""}
+            </div>`;
+    });
+
+    // ডাটা থাকলে স্লাইডারে বসানো, না থাকলে মেসেজ দেওয়া
+    if (htmlContent !== "") {
+        slider.innerHTML = htmlContent;
+    } else {
+        slider.innerHTML = "<p>বর্তমানে কোনো নোটিশ নেই।</p>";
+    }
+});
 
     <div id="authScreen">
         <h1 style="color: #ff4e50; margin-bottom: 20px;">B2K TOURNAMENT</h1>
