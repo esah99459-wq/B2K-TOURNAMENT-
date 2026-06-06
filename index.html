@@ -32,6 +32,12 @@
     </style>
 </head>
 <body>
+    <!-- নোটিশ স্লাইডার সেকশন -->
+<div id="noticeSlider" style="width: 100%; height: 180px; overflow: hidden; position: relative; background: #21222d; margin-bottom: 15px; border-radius: 12px; border: 1px solid #2f3042;">
+    <div id="noticeContent" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px;">
+        <p>নোটিশ লোড হচ্ছে...</p>
+    </div>
+</div>
 
     <div id="authScreen">
         <h1 style="color: #ff4e50; margin-bottom: 20px;">B2K TOURNAMENT</h1>
@@ -153,6 +159,33 @@
                 });
             }
         });
+        // নোটিশ স্লাইডার লজিক
+database.ref('notices').on('value', s => {
+    const slider = document.getElementById('noticeContent');
+    const notices = [];
+    
+    // ডাটাবেস থেকে ডাটাগুলো একটি লিস্টে জমা করা
+    s.forEach(c => {
+        notices.push(c.val());
+    });
+
+    if (notices.length > 0) {
+        let index = 0;
+        function showNotice() {
+            const n = notices[index];
+            slider.innerHTML = `
+                <div style="width: 100%;">
+                    <h3 style="color: #ff4e50; margin-bottom:10px;">${n.title}</h3>
+                    <p style="color:#ccc;">${n.description}</p>
+                    <a href="${n.video_link}" target="_blank" style="color: #3498db; text-decoration:none; display:block; margin-top:10px;">ভিডিওটি দেখুন</a>
+                </div>`;
+            index = (index + 1) % notices.length; // অটোমেটিক পরের নোটিশে যাবে
+        }
+        showNotice(); // প্রথম নোটিশটি দেখাও
+        setInterval(showNotice, 5000); // প্রতি ৫ সেকেন্ড পর পর চেঞ্জ হবে
+    }
+});
+    
     </script>
 </body>
 </html>
