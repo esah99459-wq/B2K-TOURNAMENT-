@@ -30,7 +30,20 @@
             <input type="text" id="noticeLink" placeholder="ইমেজ বা ভিডিও লিংক (URL)">
             <button class="btn" style="background: #3498db;" onclick="updateNotice()">নোটিশ পাবলিশ করুন</button>
         </div>
+<div class="panel-box">
+    <h2>নিয়মাবলী (Rules) আপডেট</h2>
+    <textarea id="rulesText" style="width:100%; height:100px; background:#12131a; color:#fff; border:1px solid #2d2f3d;"></textarea>
+    <button class="btn" style="background: #e67e22;" onclick="updateRules()">নিয়মাবলী সেভ করুন</button>
+</div>
 
+<script>
+    function updateRules() {
+        const text = document.getElementById('rulesText').value;
+        database.ref('app_settings/rules').set(text)
+        .then(() => alert("নিয়মাবলী আপডেট হয়েছে!"));
+    }
+</script>
+        
         <div class="panel-box">
             <h2>ডিপোজিট রিকোয়েস্ট</h2>
             <div id="depositList"></div>
