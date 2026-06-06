@@ -14,48 +14,31 @@
         body { background-color: #171821; color: #fff; padding-bottom: 80px; }
         #authScreen { display: flex; flex-direction: column; justify-content: center; align-items: center; position: fixed; top:0; left:0; width:100%; height:100%; background:#171821; z-index: 9999; padding: 20px; }
         .auth-container { width: 100%; max-width: 320px; background: #21222d; padding: 25px; border-radius: 16px; border: 1px solid #2f3042; }
-        .auth-toggle { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 2px solid #2f3042; }
-        .toggle-btn { background: none; border: none; color: #7e809a; font-size: 16px; font-weight: bold; cursor: pointer; padding-bottom: 8px; }
-        .toggle-btn.active { color: #ff4e50; border-bottom: 3px solid #ff4e50; }
-        input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #2f3042; background: #171821; color: white; outline: none; }
         .app-header { background: #21222d; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .content-section { display: none; padding: 15px; }
         .content-section.active { display: block; }
         .section-title { font-size: 16px; color: #fff; margin-bottom: 15px; border-left: 4px solid #ff4e50; padding-left: 8px; }
         .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .match-card { background: #21222d; padding: 10px; border-radius: 14px; border: 1px solid #2f3042; }
-        .btn-join { background: #ff4e50; color: #fff; border: none; padding: 10px; width: 100%; cursor: pointer; border-radius: 8px; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #21222d; display: flex; justify-content: space-around; padding: 10px 0; }
+        .btn-join { background: #ff4e50; color: #fff; border: none; padding: 10px; width: 100%; cursor: pointer; border-radius: 8px; margin-top: 10px; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #21222d; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #2f3042; }
         .nav-item { color: #7e809a; cursor: pointer; text-align: center; font-size: 12px; border:none; background:none; }
         .nav-item.active { color: #ff4e50; }
     </style>
 </head>
 <body>
 
-    <div id="noticeSlider" style="padding: 15px;">
-        <div id="userNoticeArea" style="background:#21222d; padding:15px; border-radius:12px; border:1px solid #ff4e50;">
-            <h3 id="noticeTitle">নোটিশ লোড হচ্ছে...</h3>
-            <p id="noticeDesc"></p>
-            <a id="videoLink" href="#" style="color:#3498db; display:block; margin-top:5px;">ভিডিও দেখুন</a>
-        </div>
-    </div>
-
     <div id="authScreen">
         <h1 style="color: #ff4e50; margin-bottom: 20px;">B2K TOURNAMENT</h1>
         <div class="auth-container">
-            <div class="auth-toggle">
-                <button id="toggleLogin" class="toggle-btn active" onclick="switchAuthMode('login')">লগইন</button>
-                <button id="toggleRegister" class="toggle-btn" onclick="switchAuthMode('register')">সাইন-আপ</button>
-            </div>
-            <div id="nameField" style="display: none;"><input type="text" id="authName" placeholder="আপনার নাম"></div>
-            <input type="email" id="authEmail" placeholder="ইমেইল এড্রেস">
+            <input type="email" id="authEmail" placeholder="ইমেইল">
             <input type="password" id="authPassword" placeholder="পাসওয়ার্ড">
-            <button id="authSubmitBtn" class="btn-join" onclick="handleAuthSubmit()">লগইন করুন</button>
+            <button class="btn-join" onclick="handleAuthSubmit()">লগইন/সাইন-আপ</button>
         </div>
     </div>
 
     <div class="app-header">
-        <div>স্বাগতম, <span id="userName">...</span></div>
+        <div>ইউজার: <span id="userName">...</span></div>
         <div style="color:#ff4e50;">৳<span id="userBalance">0</span></div>
     </div>
 
@@ -66,40 +49,23 @@
 
     <div id="rulesSection" class="content-section">
         <h2 class="section-title">খেলার নিয়মাবলী</h2>
-        <div id="displayRules" style="background: #21222d; padding: 20px; border-radius: 12px;">লোডিং...</div>
     </div>
 
     <div id="walletSection" class="content-section">
         <h2 class="section-title">ওয়ালেট</h2>
-        <input type="number" id="depAmount" placeholder="পরিমাণ (টাকা)">
-        <input type="text" id="depTnx" placeholder="ট্রানজেকশন আইডি">
-        <button class="btn-join" onclick="submitDeposit()">ডিপোজিট রিকোয়েস্ট</button>
+        
+        <button id="depositBtn" onclick="toggleDepositForm()" class="btn-join">ডিপোজিট করতে এখানে ক্লিক করুন</button>
+
+        <div id="depositForm" style="display:none; margin-top:15px; background:#21222d; padding:15px; border-radius:12px; border:1px solid #ff4e50;">
+            <p style="color:#ff4e50; font-weight:bold;">পেমেন্ট নাম্বার:</p>
+            <p>বিকাশ: <span id="bkashNum">লোড হচ্ছে...</span></p>
+            <p>নগদ: <span id="nagadNum">লোড হচ্ছে...</span></p>
+            <hr style="margin:10px 0; border:0; border-top:1px solid #444;">
+            <input type="number" id="depAmount" placeholder="পরিমাণ (টাকা)" style="width:100%; padding:8px; margin-bottom:10px;">
+            <input type="text" id="depTnx" placeholder="ট্রানজেকশন আইডি" style="width:100%; padding:8px; margin-bottom:10px;">
+            <button class="btn-join" onclick="submitDeposit()">কনফার্ম ডিপোজিট</button>
+        </div>
     </div>
-    <button id="depositBtn" onclick="toggleDepositForm()" style="width:100%; padding:15px; background:#ff4e50; color:white; border:none; border-radius:12px; cursor:pointer;">
-    ডিপোজিট করতে এখানে ক্লিক করুন
-</button>
-
-<div id="depositForm" style="display:none; margin-top:15px; background:#21222d; padding:15px; border-radius:12px; border:1px solid #2f3042;">
-    <div style="background:#171821; padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid #ff4e50;">
-        <p style="color:#ff4e50; font-weight:bold;">আমাদের পেমেন্ট নাম্বার:</p>
-        <p>বিকাশ: <span id="bkashNum">লোডিং...</span></p>
-        <p>নগদ: <span id="nagadNum">লোডিং...</span></p>
-    </div>
-    <input type="number" id="depAmount" placeholder="পরিমাণ (টাকা)">
-    <input type="text" id="depTnx" placeholder="ট্রানজেকশন আইডি">
-    <button onclick="submitDeposit()" style="width:100%; padding:10px; background:#ff4e50; color:white; border:none; border-radius:8px;">কনফার্ম</button>
-</div>
-
-
-        <input type="number" id="depAmount" placeholder="কত টাকা পাঠিয়েছেন?">
-        <input type="text" id="depTnx" placeholder="আপনার ট্রানজেকশন আইডি">
-        <button class="btn-join" onclick="submitDeposit()">কনফার্ম ডিপোজিট</button>
-    </div>
-</div>
-
-
-
-    
 
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchTab('playSection', this)"><i class="fa-solid fa-gamepad"></i><br>Play</button>
@@ -108,30 +74,12 @@
     </nav>
 
     <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyAoWus33bLMhSNz4rG7G9QNqYqvq2obMs8",
-          authDomain: "b2k-tournament-aa8a3.firebaseapp.com",
-          databaseURL: "https://b2k-tournament-aa8a3-default-rtdb.firebaseio.com",
-          projectId: "b2k-tournament-aa8a3",
-          storageBucket: "b2k-tournament-aa8a3.firebasestorage.app",
-          messagingSenderId: "439255320420",
-          appId: "1:439255320420:web:1d4fd7f331484c8e651c71"
-        };
+        const firebaseConfig = { /* আপনার কনফিগ এখানে আছে */ };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
 
-        // নোটিশ লোড করার কোড
-        database.ref('app_settings/notice').on('value', snap => {
-            if(snap.exists()){
-                let n = snap.val();
-                document.getElementById('noticeTitle').innerText = n.title;
-                document.getElementById('noticeDesc').innerText = n.description;
-                document.getElementById('videoLink').href = n.video_link;
-            }
-        });
-
-        // অন্য সব ফাংশন...
+        // ট্যাব সুইচ
         function switchTab(id, el) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -139,85 +87,43 @@
             el.classList.add('active');
         }
 
-        function switchAuthMode(m) {
-            document.getElementById('nameField').style.display = m === 'register' ? 'block' : 'none';
-            document.getElementById('authSubmitBtn').innerText = m === 'register' ? 'নতুন একাউন্ট' : 'লগইন করুন';
+        // ডিপোজিট ফর্ম টগল
+        function toggleDepositForm() {
+            const form = document.getElementById('depositForm');
+            form.style.display = (form.style.display === 'none') ? 'block' : 'none';
         }
 
-        function handleAuthSubmit() {
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
-            const isReg = document.getElementById('nameField').style.display === 'block';
-            if(isReg) {
-                auth.createUserWithEmailAndPassword(email, password).then(res => database.ref('users/' + res.user.uid).set({ name: document.getElementById('authName').value, balance: 0 }));
-            } else {
-                auth.signInWithEmailAndPassword(email, password).catch(e => alert("লগইন ভুল!"));
+        // নাম্বার লোড
+        database.ref('app_settings/payment_methods').on('value', snap => {
+            const data = snap.val();
+            if(data) {
+                document.getElementById('bkashNum').innerText = data.bkash || "সেট নেই";
+                document.getElementById('nagadNum').innerText = data.nagad || "সেট নেই";
             }
+        });
+
+        // ডিপোজিট সাবমিট
+        function submitDeposit() {
+            const amt = document.getElementById('depAmount').value;
+            const tnx = document.getElementById('depTnx').value;
+            if(!amt || !tnx) return alert("সব ঘর পূরণ করুন!");
+            database.ref('requests/deposits').push({ uid: auth.currentUser.uid, amount: amt, tid: tnx, status: 'pending' })
+            .then(() => alert("সফলভাবে রিকোয়েস্ট পাঠানো হয়েছে!"));
         }
 
+        // অথেন্টিকেশন ও ইউজার ডাটা (আগের কোড অনুযায়ী)
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('authScreen').style.display = 'none';
                 database.ref('users/' + user.uid).on('value', s => {
                     const data = s.val();
-                    document.getElementById('userName').innerText = data.name;
-                    document.getElementById('userBalance').innerText = data.balance || 0;
-                });
-                database.ref('matches').on('value', s => {
-                    const cont = document.getElementById('userMatchList');
-                    cont.innerHTML = "";
-                    s.forEach(c => {
-                        const m = c.val();
-                        cont.innerHTML += `<div class="match-card"><h4>${m.name}</h4><p>ফি: ৳${m.fee}</p><button class="btn-join" onclick="alert('জয়েন করা হয়েছে!')">জয়েন</button></div>`;
-                    });
+                    if(data) {
+                        document.getElementById('userName').innerText = data.name;
+                        document.getElementById('userBalance').innerText = data.balance || 0;
+                    }
                 });
             }
         });
-    database.ref('app_settings/payment_number').on('value', s => {
-    document.getElementById('adminNum').innerText = s.val() || "সেট করা হয়নি";
-});
-            
-   // ১. বাটন ক্লিক করলে বক্সটি দেখাবে বা লুকাবে
-function togglePaymentMethods() {
-    const box = document.getElementById('paymentMethods');
-    box.style.display = (box.style.display === 'none') ? 'block' : 'none';
-}
-
-// এই ফাংশনটি বাটন ক্লিক করলে কাজ করবে
-function showPayment() {
-    const box = document.getElementById('hiddenPayment');
-    box.style.display = 'block'; // ক্লিক করলেই বক্সটি প্রদর্শিত হবে
-}
-
-// ডাটাবেস থেকে নাম্বারগুলো অটোমেটিক নিয়ে আসবে
-// ১. ফর্মটি দেখানোর জন্য ফাংশন
-function toggleDepositForm() {
-    const form = document.getElementById('depositForm');
-    const btn = document.getElementById('depositBtn');
-    
-    if(form.style.display === 'none') {
-        form.style.display = 'block';
-        btn.innerText = "ডিপোজিট ফর্ম বন্ধ করুন";
-    } else {
-        form.style.display = 'none';
-        btn.innerText = "ডিপোজিট করতে এখানে ক্লিক করুন";
-    }
-}
-
-<script>
-    function toggleDepositForm() {
-        const form = document.getElementById('depositForm');
-        // এটি চেক করবে বক্সটি লুকানো আছে কি না, থাকলে খুলবে
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
-        } else {
-            form.style.display = 'none';
-        }
-    }
-</script>
-
-
-                                                                                          
     </script>
 </body>
 </html>
