@@ -144,22 +144,27 @@
         return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
     }
 
-        database.ref('notices').set({
+        function uploadNotice() {
+    const title = document.getElementById('adminTitle').value;
+    const desc = document.getElementById('adminDesc').value;
+    const link = document.getElementById('adminLink').value;
+
+    if(title === "" || desc === "") {
+        return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
+    }
+
+    // এটি ডাটাবেসে নোটিশ সেভ করছে
+    database.ref('notices').set({
         title: title,
         description: desc,
         video_link: link
     }).then(() => {
-        alert("নোটিশ সফলভাবে পাঠানো হয়েছে!");
-        document.getElementById('adminTitle').value = "";
-        document.getElementById('adminDesc').value = "";
-        document.getElementById('adminLink').value = "";
+        alert("নোটিশ সফলভাবে পাবলিশ হয়েছে!");
     }).catch(error => {
         alert("ভুল হয়েছে: " + error.message);
     });
+}
 
-    }).catch(error => {
-        alert("ভুল হয়েছে: " + error.message);
-    });
             }
             
     </script>
