@@ -75,9 +75,16 @@
         <input type="text" id="depTnx" placeholder="ট্রানজেকশন আইডি">
         <button class="btn-join" onclick="submitDeposit()">ডিপোজিট রিকোয়েস্ট</button>
     </div>
-    <div id="paymentDisplay" style="background: #21222d; padding: 10px; margin-bottom: 10px; border: 1px solid #ff4e50; border-radius: 8px;">
-    আমাদের পেমেন্ট নাম্বার: <span id="adminNum">লোড হচ্ছে...</span>
-    </div>
+    <button onclick="togglePaymentMethods()" style="width:100%; padding:10px; margin-top:10px; border:1px solid #ff4e50; background:transparent; color:#ff4e50; border-radius:8px;">
+    পেমেন্ট নাম্বার দেখুন
+</button>
+
+<div id="paymentMethods" style="display:none; margin-top:10px; background:#21222d; padding:15px; border-radius:10px; border:1px solid #2f3042;">
+    <p>বিকাশ: <span id="bkashNum">লোড হচ্ছে...</span></p>
+    <p>নগদ: <span id="nagadNum">লোড হচ্ছে...</span></p>
+    <p>রকেট: <span id="rocketNum">লোড হচ্ছে...</span></p>
+</div>
+
     
 
     <nav class="bottom-nav">
@@ -156,6 +163,22 @@
     document.getElementById('adminNum').innerText = s.val() || "সেট করা হয়নি";
 });
             
+   // ১. বাটন ক্লিক করলে বক্সটি দেখাবে বা লুকাবে
+function togglePaymentMethods() {
+    const box = document.getElementById('paymentMethods');
+    box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+}
+
+// ২. ডাটাবেস থেকে ডাটা নিয়ে এসে বসাবে
+database.ref('app_settings/payment_methods').on('value', snap => {
+    const data = snap.val();
+    if(data) {
+        document.getElementById('bkashNum').innerText = data.bkash || "সেট করা নেই";
+        document.getElementById('nagadNum').innerText = data.nagad || "সেট করা নেই";
+        document.getElementById('rocketNum').innerText = data.rocket || "সেট করা নেই";
+    }
+});
+                                                                                          
     </script>
 </body>
 </html>
