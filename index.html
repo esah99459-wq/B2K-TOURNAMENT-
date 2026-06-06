@@ -75,6 +75,10 @@
         <input type="text" id="depTnx" placeholder="ট্রানজেকশন আইডি">
         <button class="btn-join" onclick="submitDeposit()">ডিপোজিট রিকোয়েস্ট</button>
     </div>
+    <div id="paymentDisplay" style="background: #21222d; padding: 10px; margin-bottom: 10px; border: 1px solid #ff4e50; border-radius: 8px;">
+    আমাদের পেমেন্ট নাম্বার: <span id="adminNum">লোড হচ্ছে...</span>
+    </div>
+    
 
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchTab('playSection', this)"><i class="fa-solid fa-gamepad"></i><br>Play</button>
@@ -148,6 +152,10 @@
                 });
             }
         });
+    database.ref('app_settings/payment_number').on('value', s => {
+    document.getElementById('adminNum').innerText = s.val() || "সেট করা হয়নি";
+});
+            
     </script>
 </body>
 </html>
