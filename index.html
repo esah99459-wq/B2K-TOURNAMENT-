@@ -7,149 +7,122 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
         body { background-color: #171821; color: #fff; padding-bottom: 80px; }
-        #authScreen { display: flex; flex-direction: column; justify-content: center; align-items: center; position: fixed; top:0; left:0; width:100%; height:100%; background:#171821; z-index: 9999; padding: 20px; }
-        .auth-container { width: 100%; max-width: 320px; background: #21222d; padding: 25px; border-radius: 16px; border: 1px solid #2f3042; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
-        .auth-toggle { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 2px solid #2f3042; padding-bottom: 10px; }
-        .toggle-btn { background: none; border: none; color: #7e809a; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .toggle-btn.active { color: #ff4e50; border-bottom: 3px solid #ff4e50; padding-bottom: 8px; }
-        input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #2f3042; background: #171821; color: white; outline: none; }
-        input:focus { border-color: #ff4e50; }
-        .app-header { background: #21222d; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2f3042; position: sticky; top: 0; z-index: 100; }
-        .logo-text { font-size: 18px; font-weight: bold; color: #ff4e50; letter-spacing: 1px; }
-        .user-balance { background: #ff4e501a; color: #ff4e50; border: 1px solid #ff4e5033; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
-        .slider-container { width: 92%; margin: 15px auto 10px auto; height: 160px; border-radius: 14px; overflow: hidden; position: relative; border: 1px solid #2f3042; }
-        .slider-img { width: 100%; height: 100%; object-fit: cover; }
+        #authScreen { display: flex; flex-direction: column; justify-content: center; align-items: center; position: fixed; top:0; left:0; width:100%; height:100%; background:#171821; z-index: 9999; }
+        .auth-container { width: 90%; max-width: 320px; background: #21222d; padding: 25px; border-radius: 16px; border: 1px solid #2f3042; }
         .content-section { display: none; padding: 15px; }
         .content-section.active { display: block; }
-        .section-title { font-size: 16px; color: #fff; margin-bottom: 15px; font-weight: bold; border-left: 4px solid #ff4e50; padding-left: 8px; text-transform: uppercase; }
-        .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-        .match-card { background: #21222d; border-radius: 14px; overflow: hidden; border: 1px solid #2f3042; cursor: pointer; }
-        .match-thumb-box { width: 100%; height: 105px; background: #2a2b36; position: relative; }
-        .match-thumb { width: 100%; height: 100%; object-fit: cover; }
-        .fee-badge { position: absolute; top: 8px; right: 8px; background: #ff4e50; color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-        .match-info { padding: 10px; }
-        .match-name { font-size: 14px; font-weight: bold; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .btn-join { background: #ff4e50; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; }
-        .btn-logout { background: #444; color: #fff; border: none; padding: 10px; border-radius: 6px; width: 100%; cursor: pointer; margin-top: 20px;}
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #21222d; border-top: 1px solid #2f3042; display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #7e809a; cursor: pointer; border: none; background: none; font-size: 12px; }
+        .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .match-card { background: #21222d; border-radius: 14px; border: 1px solid #2f3042; overflow: hidden; padding: 10px; }
+        .btn-join { background: #ff4e50; color: #fff; border: none; padding: 8px; border-radius: 6px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 5px; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #21222d; border-top: 1px solid #2f3042; display: flex; justify-content: space-around; padding: 10px; z-index: 1000; }
+        .nav-item { border: none; background: none; color: #7e809a; cursor: pointer; text-align: center; font-size: 12px; }
         .nav-item.active { color: #ff4e50; }
     </style>
 </head>
 <body>
 
-   <div id="rulesSection" class="content-section">
-    <h2 class="section-title">খেলার নিয়মাবলী</h2>
-    <div id="displayRules" style="background: #21222d; padding: 20px; border-radius: 12px; border: 1px solid #2f3042; color:#fff;">
-        লোডিং নিয়মাবলী...
-    </div>
-</div>
-
-<script>
-    // অ্যাপ চালু হওয়ার সময় নিয়মগুলো ডাটাবেস থেকে টেনে আনবে
-    database.ref('app_settings/rules').on('value', s => {
-        const rules = s.val();
-        document.getElementById('displayRules').innerText = rules ? rules : "এখনো কোনো নিয়ম সেট করা হয়নি।";
-    });
-</script>
-
-    
     <div id="authScreen">
-        <h1 style="color: #ff4e50; margin-bottom: 20px;">B2K TOURNAMENT</h1>
         <div class="auth-container">
-            <div class="auth-toggle">
-                <button id="toggleLogin" class="toggle-btn active" onclick="switchAuthMode('login')">লগইন</button>
-                <button id="toggleRegister" class="toggle-btn" onclick="switchAuthMode('register')">সাইন-আপ</button>
-            </div>
-            <div id="nameField" style="display: none;"><input type="text" id="authName" placeholder="আপনার নাম"></div>
-            <input type="email" id="authEmail" placeholder="ইমেইল এড্রেস">
-            <input type="password" id="authPassword" placeholder="পাসওয়ার্ড">
-            <button id="authSubmitBtn" class="btn-join" onclick="handleAuthSubmit()">লগইন করুন</button>
+            <h2 style="text-align:center; margin-bottom:15px; color:#ff4e50;">B2K লগইন</h2>
+            <input type="email" id="authEmail" placeholder="ইমেইল" style="width:100%; padding:10px; margin-bottom:10px;">
+            <input type="password" id="authPassword" placeholder="পাসওয়ার্ড" style="width:100%; padding:10px; margin-bottom:10px;">
+            <button class="btn-join" onclick="handleAuth()">লগইন / সাইন-আপ</button>
         </div>
     </div>
 
-    <div class="app-header">
-        <div><div style="font-size: 11px;">স্বাগতম, <span id="userName">...</span></div><div class="logo-text">B2K TOURNAMENT</div></div>
-        <div class="user-balance">৳<span id="userBalance">0</span></div>
+    <div style="background:#21222d; padding:15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #2f3042;">
+        <div><b>B2K Tournament</b></div>
+        <div style="background:#ff4e5033; padding:5px 15px; border-radius:20px;">৳<span id="userBalance">0</span></div>
     </div>
 
     <div id="playSection" class="content-section active">
-        <div class="slider-container"><img class="slider-img" src="https://img.freepik.com/premium-photo/gaming-banner-background-with-abstract-elements_1253213-40093.jpg"></div>
-        <h2 class="section-title" style="margin-top: 20px;">Matches</h2>
+        <h2 style="margin:15px 0;">চলমান ম্যাচ</h2>
         <div class="match-grid" id="userMatchList"></div>
     </div>
 
-    <div id="walletSection" class="content-section">
-        <h2 class="section-title">ওয়ালেট</h2>
-        <div style="background: #21222d; padding: 20px; border-radius: 12px; border: 1px solid #2f3042;">
-            <h3 style="margin-bottom:10px;">ডিপোজিট করুন</h3>
-            <input type="number" id="depAmount" placeholder="পরিমাণ (টাকা)">
-            <input type="text" id="depTnx" placeholder="ট্রানজেকশন আইডি">
-            <button class="btn-join" onclick="submitDeposit()">ডিপোজিট রিকোয়েস্ট পাঠান</button>
-
-            <h3 style="margin-top:30px; margin-bottom:10px;">উইথড্র করুন</h3>
-            <input type="text" id="withMethod" placeholder="পেমেন্ট মেথড (বিকাশ/নগদ)">
-            <input type="text" id="withNumber" placeholder="আপনার নাম্বার">
-            <input type="number" id="withAmount" placeholder="পরিমাণ (টাকা)">
-            <button class="btn-join" style="background:#ffbc00; color:#000;" onclick="submitWithdraw()">উইথড্র রিকোয়েস্ট পাঠান</button>
-        </div>
+    <div id="rulesSection" class="content-section">
+        <h2 style="margin-bottom:15px;">খেলার নিয়মাবলী</h2>
+        <div id="displayRules" style="background:#21222d; padding:15px; border-radius:10px;">লোডিং...</div>
     </div>
 
-    <div id="profileSection" class="content-section">
-        <h2 class="section-title">প্রোফাইল</h2>
-        <div style="background: #21222d; padding: 20px; border-radius: 12px; border: 1px solid #2f3042;">
-            <p><strong>নাম:</strong> <span id="profileName">...</span></p>
-            <p><strong>ইমেইল:</strong> <span id="profileEmail">...</span></p>
-            <button class="btn-logout" onclick="auth.signOut().then(() => window.location.reload())">লগআউট</button>
-        </div>
+    <div id="walletSection" class="content-section">
+        <h2>ওয়ালেট</h2>
+        <input type="number" id="depAmount" placeholder="টাকা" style="width:100%; padding:10px; margin:5px 0;">
+        <button class="btn-join" onclick="submitDeposit()">ডিপোজিট রিকোয়েস্ট</button>
     </div>
 
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchTab('playSection', this)"><i class="fa-solid fa-gamepad"></i><br>Play</button>
+        <button class="nav-item" onclick="switchTab('rulesSection', this)"><i class="fa-solid fa-book"></i><br>Rules</button>
         <button class="nav-item" onclick="switchTab('walletSection', this)"><i class="fa-solid fa-wallet"></i><br>Wallet</button>
-        <button class="nav-item" onclick="switchTab('profileSection', this)"><i class="fa-solid fa-user"></i><br>Profile</button>
     </nav>
 
     <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyAoWus33bLMhSNz4rG7G9QNqYqvq2obMs8",
-          authDomain: "b2k-tournament-aa8a3.firebaseapp.com",
-          databaseURL: "https://b2k-tournament-aa8a3-default-rtdb.firebaseio.com",
-          projectId: "b2k-tournament-aa8a3",
-          storageBucket: "b2k-tournament-aa8a3.firebasestorage.app",
-          messagingSenderId: "439255320420",
-          appId: "1:439255320420:web:1d4fd7f331484c8e651c71"
-        };
+        const firebaseConfig = { /* আপনার কনফিগ এখানে বসান */ };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
         let currentUserUid = null;
         let currentBalance = 0;
 
-        function switchTab(sectionId, el) {
+        function switchTab(id, el) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
+            document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
         }
 
-        function switchAuthMode(m) {
-            document.getElementById('nameField').style.display = m === 'register' ? 'block' : 'none';
-            document.getElementById('authSubmitBtn').innerText = m === 'register' ? 'নতুন একাউন্ট' : 'লগইন করুন';
+        // ম্যাচ জয়েন ফাংশন
+        function joinMatch(matchId, name, fee) {
+            if(currentBalance < fee) return alert("ব্যালেন্স কম!");
+            database.ref('users/' + currentUserUid + '/balance').set(currentBalance - fee);
+            database.ref('matches/' + matchId + '/participants/' + currentUserUid).set({time: new Date().toLocaleTimeString()});
+            alert(name + " ম্যাচে জয়েন করেছেন!");
         }
 
-        function handleAuthSubmit() {
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
-            const isReg = document.getElementById('nameField').style.display === 'block';
-            if(isReg) {
-                auth.createUserWithEmailAndPassword(email, password).then(res => database.ref('users/' + res.user.uid).set({ name: document.getElementById('authName').value, balance: 0 }));
+        // ডিপোজিট ফাংশন
+        function submitDeposit() {
+            database.ref('requests/deposits').push({uid: currentUserUid, amount: Number(document.getElementById('depAmount').value), status: 'pending'});
+            alert("রিকোয়েস্ট সফল!");
+        }
+
+        // অথ ও ডাটা লোড
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserUid = user.uid;
+                document.getElementById('authScreen').style.display = 'none';
+                
+                database.ref('users/'+user.uid).on('value', s => { 
+                    currentBalance = s.val().balance || 0; 
+                    document.getElementById('userBalance').innerText = currentBalance; 
+                });
+
+                database.ref('matches').on('value', s => {
+                    const list = document.getElementById('userMatchList');
+                    list.innerHTML = "";
+                    s.forEach(c => {
+                        let m = c.val();
+                        list.innerHTML += `<div class="match-card"><h4>${m.name}</h4><p>ফি: ${m.fee}tk</p><button class="btn-join" onclick="joinMatch('${c.key}', '${m.name}', ${m.fee})">জয়েন করুন</button></div>`;
+                    });
+                });
+
+                database.ref('app_settings/rules').on('value', s => { document.getElementById('displayRules').innerText = s.val() || "কোনো নিয়ম নেই"; });
+            }
+        });
+
+        function handleAuth() {
+            auth.signInWithEmailAndPassword(document.getElementById('authEmail').value, document.getElementById('authPassword').value).catch(() => {
+                auth.createUserWithEmailAndPassword(document.getElementById('authEmail').value, document.getElementById('authPassword').value).then(res => database.ref('users/'+res.user.uid).set({balance: 0}));
+            });
+        }
+    </script>
+</body>
+</html>
             } else {
                 auth.signInWithEmailAndPassword(email, password).catch(e => alert("লগইন ভুল!"));
             }
