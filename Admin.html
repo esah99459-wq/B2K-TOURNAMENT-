@@ -83,25 +83,32 @@
             const title = document.getElementById('adminTitle').value;
             const desc = document.getElementById('adminDesc').value;
             const link = document.getElementById('adminLink').value;
-
-            if (title === "" || desc === "") {
-                return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
-            }
-
-            database.ref('app_settings/notice').set({
-                title: title,
-                description: desc,
-                video_link: link
-            }).then(() => alert("নোটিশ সফলভাবে পাবলিশ হয়েছে!"))
-              .catch((error) => alert("ভুল হয়েছে: " + error.message));
+            if (title === "" || desc === "") return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
+            database.ref('app_settings/notice').set({ title, description: desc, video_link: link })
+            .then(() => alert("নোটিশ সফলভাবে পাবলিশ হয়েছে!"))
+            .catch((error) => alert("ভুল হয়েছে: " + error.message));
         }
 
         function updateRules() {
-            const text = document.getElementById('rulesText').value;
-            database.ref('app_settings/rules').set(text)
+            database.ref('app_settings/rules').set(document.getElementById('rulesText').value)
             .then(() => alert("নিয়মাবলী আপডেট হয়েছে!"));
         }
 
+        // --- ডাটা লোড করার অটোমেটিক ফাংশন (যা আপনি লাস্টে বসাতে চেয়েছিলেন) ---
+        database.ref('app_settings/notice').on('value', snap => {
+            if(snap.exists()){
+                let n = snap.val();
+                document.getElementById('adminTitle').value = n.title || "";
+                document.getElementById('adminDesc').value = n.description || "";
+                document.getElementById('adminLink').value = n.video_link || "";
+            }
+        });
+
+        database.ref('app_settings/rules').on('value', snap => {
+            if(snap.exists()) document.getElementById('rulesText').value = snap.val();
+        });
+        
+        // --- অন্যান্য লিস্ট ফাংশন ---
         database.ref('requests/deposits').on('value', snap => {
             const list = document.getElementById('depositList');
             list.innerHTML = "";
@@ -140,22 +147,6 @@
                 list.innerHTML += `<div style="background:#262738; padding:5px; margin:5px 0;">${m.name} - ফি: ${m.fee} | সময়: ${m.time} <button onclick="database.ref('matches/${child.key}').remove()">Delete</button></div>`;
             });
         });
-    // প্যানেল লোড হওয়ার সাথে সাথে ডাটা থেকে তথ্য নিয়ে বক্সে বসানোর কোড
-database.ref('app_settings/notice').on('value', snap => {
-    if(snap.exists()){
-        let n = snap.val();
-        document.getElementById('adminTitle').value = n.title || "";
-        document.getElementById('adminDesc').value = n.description || "";
-        document.getElementById('adminLink').value = n.video_link || "";
-    }
-});
-
-database.ref('app_settings/rules').on('value', snap => {
-    if(snap.exists()){
-        document.getElementById('rulesText').value = snap.val();
-    }
-});
-        
     </script>
 </body>
 </html>
