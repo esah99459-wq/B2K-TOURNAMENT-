@@ -135,6 +135,31 @@
                 list.innerHTML += `<div style="background:#262738; padding:5px; margin:5px 0;">${m.name} - ফি: ${m.fee} | সময়: ${m.time} <button onclick="database.ref('matches/${child.key}').remove()">Delete</button></div>`;
             });
         });
+    function uploadNotice() {
+    const title = document.getElementById('adminTitle').value;
+    const desc = document.getElementById('adminDesc').value;
+    const link = document.getElementById('adminLink').value;
+
+    if(title === "" || desc === "") {
+        return alert("টাইটেল এবং ডেসক্রিপশন খালি রাখা যাবে না!");
+    }
+
+    // এটিই সেই ম্যাজিক লাইন যা ডাটাবেসে ডাটা পাঠাবে
+    database.ref('notices').push({
+        title: title,
+        description: desc,
+        video_link: link
+    }).then(() => {
+        alert("নোটিশ সফলভাবে পাঠানো হয়েছে!");
+        // ইনপুট বক্স খালি করে দেওয়া
+        document.getElementById('adminTitle').value = "";
+        document.getElementById('adminDesc').value = "";
+        document.getElementById('adminLink').value = "";
+    }).catch(error => {
+        alert("ভুল হয়েছে: " + error.message);
+    });
+            }
+            
     </script>
 </body>
 </html>
