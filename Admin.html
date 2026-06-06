@@ -154,7 +154,12 @@
     }
 
     // এটি ডাটাবেসে নোটিশ সেভ করছে
-    database.ref('notices').set({
+    database.ref('app_settings/notice').set({
+    title: title,
+    description: desc,
+    video_link: link
+});
+
         title: title,
         description: desc,
         video_link: link
