@@ -159,35 +159,22 @@
                 });
             }
         });
-        // এই কোডটি আগের কোডটির পরিবর্তে বসান
-database.ref().on('value', (snapshot) => {
+        database.ref('notices').on('value', (snapshot) => {
     const slider = document.getElementById('noticeContent');
-    const allData = snapshot.val();
-    
-    // ডাটাবেসে 'notices' ফোল্ডারটি খুঁজছে
-    let noticeData = allData.notices;
+    const n = snapshot.val(); 
 
-    // যদি 'notices' না পায়, তবে অ্যাডমিন প্যানেল সম্ভবত অন্য কোথাও ডাটা রাখছে
-    // আমরা এখন চেক করছি ডাটাবেসে আসলে নোটিশগুলো কোথায় আছে
-    if (!noticeData) {
-        console.log("ডাটাবেসে 'notices' নামে কিছু পাওয়া যায়নি। পুরো ডাটা:", allData);
-        slider.innerHTML = "<p>ডাটাবেস পাথ মেলেনি! কনসোল চেক করুন।</p>";
-        return;
-    }
-
-    // নোটিশ থাকলে দেখানোর লজিক
-    let htmlContent = "";
-    Object.keys(noticeData).forEach((key) => {
-        const n = noticeData[key];
-        htmlContent += `
-            <div class="notice-item" style="width: 100%; padding: 10px;">
-                <h3 style="color: #ff4e50;">${n.title || "নোটিশ"}</h3>
-                <p style="color: #ccc; margin: 5px 0;">${n.description || ""}</p>
-                ${n.video_link ? `<a href="${n.video_link}" target="_blank" style="color: #3498db;">ভিডিওটি দেখুন</a>` : ""}
+    if (n) {
+        slider.innerHTML = `
+            <div class="notice-item" style="padding: 15px; text-align: center;">
+                <h3 style="color: #ff4e50; margin-bottom: 10px;">${n.title}</h3>
+                <p style="color: #ccc; margin-bottom: 10px;">${n.description}</p>
+                ${n.video_link ? `<a href="${n.video_link}" target="_blank" style="color: #3498db; text-decoration: none; font-weight: bold;">▶ ভিডিওটি দেখুন</a>` : ""}
             </div>`;
-    });
-    slider.innerHTML = htmlContent;
+    } else {
+        slider.innerHTML = "<p>বর্তমানে কোনো নোটিশ নেই।</p>";
+    }
 });
+
 
     
     </script>
