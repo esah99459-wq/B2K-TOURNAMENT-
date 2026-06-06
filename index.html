@@ -168,6 +168,25 @@
 
 
 
+   <div id="userNoticeArea" style="background:#1c1d26; padding:15px; border-radius:10px; color:#fff; border:1px solid #ff4e50;">
+    <h3 id="noticeTitle">নোটিশ লোড হচ্ছে...</h3>
+    <p id="noticeDesc"></p>
+    <a id="videoLink" href="#" style="color:#3498db;">ভিডিও দেখুন</a>
+</div>
+
+<script>
+    // এখানে আপনার সেই একই firebaseConfig বসাতে হবে যা অ্যাডমিন প্যানেলে আছে
+    // firebase.initializeApp(firebaseConfig); 
+    
+    database.ref('app_settings/notice').on('value', snap => {
+        if(snap.exists()){
+            let n = snap.val();
+            document.getElementById('noticeTitle').innerText = n.title;
+            document.getElementById('noticeDesc').innerText = n.description;
+            document.getElementById('videoLink').href = n.video_link;
+        }
+    });
+</script>
     
     </script>
 </body>
