@@ -38,6 +38,12 @@
             <button class="btn" style="background: #e67e22;" onclick="updateRules()">নিয়মাবলী সেভ করুন</button>
         </div>
         
+      <div class="panel-box">
+    <h2>পেমেন্ট মেথড আপডেট (বিকাশ/নগদ)</h2>
+    <input type="text" id="adminPaymentNum" placeholder="পেমেন্ট নাম্বার দিন">
+    <button class="btn" style="background: #9b59b6;" onclick="updatePayment()">সেভ করুন</button>
+      </div>
+        
         <div class="panel-box">
             <h2>ডিপোজিট রিকোয়েস্ট</h2>
             <div id="depositList"></div>
@@ -147,6 +153,11 @@
                 list.innerHTML += `<div style="background:#262738; padding:5px; margin:5px 0;">${m.name} - ফি: ${m.fee} | সময়: ${m.time} <button onclick="database.ref('matches/${child.key}').remove()">Delete</button></div>`;
             });
         });
+   function updatePayment() {
+    const num = document.getElementById('adminPaymentNum').value;
+    database.ref('app_settings/payment_number').set(num).then(() => alert("নাম্বার আপডেট হয়েছে!"));
+                }
+                                   
     </script>
 </body>
 </html>
