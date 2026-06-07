@@ -2022,7 +2022,57 @@
             </div>
 
             <button class="am-verify-btn" onclick="window.triggerVerify()">VERIFY</button>
-        </div>
+        <script>
+    // VERIFY বাটনে ক্লিক করলে এই ফাংশনটি চলবে
+    window.triggerVerify = function() {
+        // ১. কোন মেথড সিলেক্ট করা আছে তা বের করা
+        let activeCard = document.querySelector('.am-card.active');
+        let method = activeCard.querySelector('span').innerText;
+        
+        // ২. ট্রানজেকশন আইডি ইনপুট বক্স থেকে নেওয়া
+        let trxId = document.getElementById('trx-' + method.toLowerCase()).value;
+        
+        // ৩. ভ্যালিডেশন: ট্রানজেকশন আইডি চেক করা
+        if (trxId === "" || trxId.length < 5) {
+            alert("অনুগ্রহ করে সঠিক ট্রানজেকশন আইডিটি দিন।");
+            return;
+        }
+
+        // ৪. ইউজারের ইমেইল বা আইডি শনাক্ত করা (যদি ফায়ারবেস লগইন করা থাকে)
+        let currentUser = firebase.auth().currentUser;
+        let userEmail = currentUser ? currentUser.email : "anonymous_user";
+
+        // ৫. ফায়ারবেসে ডাটা পাঠানোর প্রস্তুতি
+        const depositRef = firebase.database().ref('deposits');
+        
+        let depositData = {
+            method: method,
+            transactionId: trxId,
+            status: 'pending',
+            timestamp: Date.now(),
+            userEmail: userEmail // এখানে ইউজারের আইডি/ইমেইল অটোমেটিক বসবে
+        };
+
+        // ৬. ফায়ারবেসে ডাটা পুশ করা
+        depositRef.push(depositData).then(() => {
+            alert("পেমেন্ট রিকোয়েস্ট পাঠানো হয়েছে! অটোমেটিক ভেরিফিকেশন চলছে...");
+            document.getElementById('trx-' + method.toLowerCase()).value = "";
+        }).catch((error) => {
+            alert("কিছু একটা ভুল হয়েছে: " + error.message);
+        });
+    };
+
+    // ট্যাব পরিবর্তন করার ফাংশন
+    window.switchPayTab = function(method) {
+        document.querySelectorAll('.am-card').forEach(c => c.classList.remove('active'));
+        document.getElementById('tab-' + method).classList.add('active');
+        
+        document.querySelectorAll('.am-box').forEach(b => b.style.display = 'none');
+        document.getElementById('content-' + method).style.display = 'block';
+    };
+</script>
+
+</div>
     </section>
 
     <!-- WITHDRAW VIEW -->
