@@ -1785,7 +1785,12 @@
                 <span style="font-size: 20px;">💰</span> !
             </div>
             
-            <a href="https://t.me/developerxemon" target="_blank" style="font-size: 16px; font-weight: 700; color: #673AB7; text-decoration: underline; display: block;">
+<a href="whatsapp://send?phone=8801894206196" style="font-size: 16px; font-weight: 700; color: #673AB7; text-decoration: underline; display: block;">
+   সাপোর্ট / চ্যাট করুন
+</a>
+
+
+
                 t.me/developerxemon
             </a>
         </div>
@@ -1860,7 +1865,7 @@
             <div class="wallet-gradient-card">
                 <div class="wg-header">
                     <i class="fas fa-credit-card"></i> 
-                    KheloBangladesh <span class="wg-wallet-text">WALLET</span>
+                    B2k Tournament <span class="wg-wallet-text">WALLET</span>
                 </div>
                 
                 <div class="wg-label">Available Balance</div>
@@ -2252,6 +2257,7 @@
     window.closeJoinPage = closeJoinPage;
 
     window.onload = () => { initData(); };
+
 
     function initData() {
         onValue(ref(db, 'categories'), s => {
@@ -3146,17 +3152,43 @@
          });
     }
     
-    function loadNotifs() {
-        const l = document.getElementById('notif-list-container');
-        if(!l) return;
-        onValue(ref(db, 'notifications'), s => {
-            l.innerHTML = "";
-            const d = s.val();
-            if(d) Object.values(d).reverse().forEach(n => {
-                l.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; font-weight:bold;">${n.title}<br><span style="font-weight:normal; font-size:13px; color:#666;">${n.body}</span></div>`;
-            });
-        });
+
+// ফোনের ফিজিক্যাল ব্যাক বাটন সরাসরি ধরার কোড
+document.addEventListener("keydown", function(event) {
+    // ৪ বারের কোড মানে ফোনের ব্যাক বাটন অথবা কম্পিউটারের Esc বাটন
+    if (event.key === "Escape" || event.keyCode === 27 || event.keyCode === 4) {
+        event.preventDefault(); // অ্যাপ বন্ধ হওয়া আটকাবে
+        
+        // আপনার ওই কালো বাটনে (Auth-black-btn) অটো-ক্লিক করে দেবে
+        const blackBtn = document.querySelector('.Auth-black-btn');
+        if (blackBtn) {
+            blackBtn.click(); 
+        }
     }
-</script>;
+});
+    // ১. পেজ লোড হওয়ার সাথে সাথে হিস্ট্রিতে একটা পয়েন্ট পুশ করে রাখা
+    window.history.pushState(null, null, window.location.href);
+
+    // ২. যখনই ব্যাক বাটন চাপা হবে, এই ফাংশনটি কাজ করবে
+    window.addEventListener('popstate', function () {
+        // ৩. কনফার্মেশন বক্স দেখানো
+        var leave = confirm("আপনি কি অ্যাপ থেকে বের হয়ে যেতে চান?");
+        
+        if (leave) {
+            window.history.go(-2);
+        } else {
+            window.history.pushState(null, null, window.location.href);
+        }
+    });
+</script>
+
+<a href="https://wa.me/8801894206196" target="_blank" style="position: fixed; bottom: 82px; right: 22px; background: #25D366; color: #fff; width: 52px; height: 52px; border-radius: 50%; font-size: 26px; text-decoration: none; box-shadow: 0px 4px 12px rgba(0,0,0,0.4); z-index: 9999999; display: flex; align-items: center; justify-content: center;">
+    📩
+</a>
+
+</body>
+</html>
+
+
 </body>
 </html>
